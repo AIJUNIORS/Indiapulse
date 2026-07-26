@@ -30,8 +30,9 @@ UNIVERSE_DIR = PROJECT_ROOT / CONFIG["paths"]["universe_dir"]
 HISTORICAL_DIR = PROJECT_ROOT / CONFIG["paths"]["historical_dir"]
 JSON_DIR = PROJECT_ROOT / CONFIG["paths"]["json_dir"]
 LOG_DIR = PROJECT_ROOT / CONFIG["paths"]["log_dir"]
+MANUAL_DIR = PROJECT_ROOT / CONFIG["paths"].get("manual_dir", "data/manual")
 
-for _dir in (UNIVERSE_DIR, HISTORICAL_DIR, JSON_DIR, LOG_DIR):
+for _dir in (UNIVERSE_DIR, HISTORICAL_DIR, JSON_DIR, LOG_DIR, MANUAL_DIR):
     _dir.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------
