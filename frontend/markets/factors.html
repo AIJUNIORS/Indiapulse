@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IndiaPulse — Factors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <nav class="ip-nav">
+    <div class="brand">India<em>Pulse</em></div>
+    <div class="ip-nav-links">
+      <a href="../index.html">Global</a>
+      <a href="../macro/macro.html" >Macro</a>
+      <a href="../markets/broad-market.html" >Market</a>
+      <a href="../markets/sectors.html" >Sectors</a>
+      <a href="../markets/industries.html" >Industries</a>
+      <a href="../markets/themes.html" >Themes</a>
+      <a href="../markets/factors.html" class="active">Factors</a>
+      <a href="../commodities/commodities.html" >Commodities</a>
+      <a href="../analytics/compare.html" >Opportunity</a>
+    </div>
+  </nav>
+
+  <div class="ip-shell">
+    <p class="ip-eyebrow">Quality · Value · Momentum · Low Volatility</p>
+    <h1 class="ip-title">Factors</h1>
+    <p class="ip-subtitle">Factor-investing indices tracked for style rotation signals.</p>
+
+    <div class="ip-grid" id="summary-cards"></div>
+
+    <div class="ip-panel">
+      <h2>Factor Constituents</h2>
+      <div id="detail-table"></div>
+    </div>
+
+    <div class="ip-footer">
+      IndiaPulse · Source: <code>json/factors.json</code> · Regenerate with <code>python -m backend.main --download</code>
+    </div>
+  </div>
+
+<script src="../assets/ip.js"></script>
+<script>
+(async function () {
+  const cardsEl = document.getElementById("summary-cards");
+  const tableEl = document.getElementById("detail-table");
+  try {
+    const payload = await IP.loadCategory("factors");
+    const results = payload.data || [];
+    IP.renderSummaryCards(cardsEl, results);
+    IP.renderDetailTable(tableEl, results);
+  } catch (e) {
+    IP.renderEmpty(cardsEl, "No data yet.");
+    IP.renderEmpty(tableEl, "Run the backend pipeline to populate this dashboard: python -m backend.main --download");
+  }
+})();
+</script>
+</body>
+</html>
