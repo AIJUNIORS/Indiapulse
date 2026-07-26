@@ -1,298 +1,42 @@
-# ==========================================================
-# IndiaPulse Configuration v1.0
-# ==========================================================
-# Project      : IndiaPulse
-# Version      : 1.0.0
-# Author       : AIJUNIORS
-# Description  : Indian Market Intelligence Platform
-# ==========================================================
-
-# ==========================================================
-# Project
-# ==========================================================
-
+# IndiaPulse configuration
 project:
   name: IndiaPulse
-  version: "1.0.0"
-  description: Indian Market Intelligence Platform
-  author: AIJUNIORS
-
-# ==========================================================
-# Environment
-# ==========================================================
-
-environment:
-  mode: production            # development | production
   timezone: Asia/Kolkata
-  country: India
-  currency: INR
-
-# ==========================================================
-# Market
-# ==========================================================
-
-market:
-  exchange: NSE
-  benchmark: NIFTY50
-
-# ==========================================================
-# Market Calendar
-# ==========================================================
-
-market_calendar:
-  trading_days: Monday-Friday
-  market_open: "09:15"
-  market_close: "15:30"
-  update_after_close: true
-
-# ==========================================================
-# Scheduler
-# ==========================================================
-
-scheduler:
-  enabled: true
-  frequency: daily
-  run_time: "20:00"
-  timezone: Asia/Kolkata
-
-# ==========================================================
-# Automation
-# ==========================================================
-
-automation:
-  auto_download: true
-  auto_update_history: true
-  auto_calculate_indicators: true
-  auto_calculate_analytics: true
-  auto_generate_json: true
-  auto_publish_github_pages: true
-
-# ==========================================================
-# Data Providers
-# ==========================================================
-
-data_provider:
-
-  market:
-    primary: NSE
-    fallback: YahooFinance
-
-  macro:
-    primary: RBI
-
-# ==========================================================
-# Folder Structure
-# ==========================================================
 
 paths:
-
-  historical_data: data/historical
-
-  latest_data: data/latest
-
-  universe: data/universe
-
-  json_output: json
-
-  reports: reports
-
-  logs: logs
-
-# ==========================================================
-# Market Universe Files
-# ==========================================================
-
-universe:
-
-  broad_market: data/universe/broad_market.csv
-
-  sectors: data/universe/sectors.csv
-
-  industries: data/universe/industries.csv
-
-  themes: data/universe/themes.csv
-
-  factors: data/universe/factors.csv
-
-  fixed_income: data/universe/fixed_income.csv
-
-  commodities: data/universe/commodities.csv
-
-  macro: data/universe/macro.csv
-
-# ==========================================================
-# Download
-# ==========================================================
+  universe_dir: data/universe
+  historical_dir: data/historical
+  json_dir: json
+  log_dir: docs/logs
 
 download:
+  default_period: "10y"
+  default_interval: "1d"
+  max_retries: 3
+  retry_backoff_seconds: 5
+  request_timeout: 30
+  rate_limit_sleep: 1.0
 
-  interval: 1d
-
-  history_years: 15
-
-  incremental_update: true
-
-  overwrite_existing: false
-
-  retry_attempts: 3
-
-  timeout_seconds: 30
-
-# ==========================================================
-# Validation
-# ==========================================================
-
-validation:
-
-  verify_latest_trading_day: true
-
-  skip_if_already_updated_today: true
-
-  fill_missing_data: false
-
-# ==========================================================
-# Technical Indicators
-# ==========================================================
+opportunity_weights:
+  seasonality: 0.35
+  macro_cycle: 0.30
+  momentum: 0.20
+  valuation: 0.15
 
 indicators:
+  sma_periods: [20, 50, 100, 200]
+  ema_periods: [20, 50]
+  rsi_period: 14
+  atr_period: 14
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  roc_period: 21
 
-  moving_average:
-    short: 20
-    medium: 50
-    long: 200
-
-  momentum:
-    short: 20
-    medium: 60
-    long: 120
-
-  volatility:
-    short: 20
-    medium: 60
-    annual: 252
-
-  atr:
-    period: 14
-
-  rsi:
-    period: 14
-
-  macd:
-    fast: 12
-    slow: 26
-    signal: 9
-
-# ==========================================================
-# Analytics
-# ==========================================================
-
-analytics:
-
-  trend:
-    enabled: true
-
-  seasonality:
-    enabled: true
-    lookback_years: 15
-    minimum_history_years: 10
-    remove_outliers: true
-    confidence_level: 95
-
-  breadth:
-    enabled: true
-    moving_average: 200
-
-  market_cycle:
-    enabled: true
-    smoothing_period: 20
-
-  relative_strength:
-    enabled: true
-
-  volatility:
-    enabled: true
-
-  valuation:
-    enabled: true
-
-  opportunity:
-    enabled: true
-
-  validation:
-    enabled: true
-
-# ==========================================================
-# Opportunity Score
-# ==========================================================
-
-opportunity_score:
-
-  seasonality: 35
-
-  macro_cycle: 30
-
-  momentum: 20
-
-  valuation: 15
-
-# ==========================================================
-# Export
-# ==========================================================
-
-export:
-
-  overwrite_existing: true
-
-  output_directory: json
-
-  pretty_print: true
-
-# ==========================================================
-# Dashboard
-# ==========================================================
-
-dashboard:
-
-  default_group: broad_market
-
-  default_theme: light
-
-  show_last_updated: true
-
-  decimal_places: 2
-
-  date_format: "%d-%b-%Y"
-
-# ==========================================================
-# Cache
-# ==========================================================
-
-cache:
-
-  enabled: true
-
-  refresh_every_run: true
-
-# ==========================================================
-# Logging
-# ==========================================================
+seasonality:
+  min_years: 5
+  outlier_std_threshold: 2.5
 
 logging:
-
-  enabled: true
-
   level: INFO
-
-  file: logs/indiapulse.log
-
-# ==========================================================
-# Development
-# ==========================================================
-
-development:
-
-  debug: false
-
-  save_intermediate_files: false
-
-  overwrite_existing: true
+  file: docs/logs/indiapulse.log
