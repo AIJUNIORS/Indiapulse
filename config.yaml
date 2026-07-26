@@ -8,6 +8,7 @@ paths:
   historical_dir: data/historical
   json_dir: json
   log_dir: docs/logs
+  manual_dir: data/manual
 
 download:
   default_period: "10y"
