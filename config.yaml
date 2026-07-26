@@ -7,6 +7,10 @@
 # Description  : Indian Market Intelligence Platform
 # ==========================================================
 
+# ==========================================================
+# Project
+# ==========================================================
+
 project:
   name: IndiaPulse
   version: "1.0.0"
@@ -18,10 +22,10 @@ project:
 # ==========================================================
 
 environment:
-  mode: production               # development | production
+  mode: production            # development | production
   timezone: Asia/Kolkata
-  currency: INR
   country: India
+  currency: INR
 
 # ==========================================================
 # Market
@@ -117,7 +121,7 @@ universe:
   macro: data/universe/macro.csv
 
 # ==========================================================
-# Download Configuration
+# Download
 # ==========================================================
 
 download:
@@ -184,17 +188,38 @@ indicators:
 
 analytics:
 
+  trend:
+    enabled: true
+
   seasonality:
+    enabled: true
     lookback_years: 15
     minimum_history_years: 10
     remove_outliers: true
     confidence_level: 95
 
   breadth:
+    enabled: true
     moving_average: 200
 
   market_cycle:
+    enabled: true
     smoothing_period: 20
+
+  relative_strength:
+    enabled: true
+
+  volatility:
+    enabled: true
+
+  valuation:
+    enabled: true
+
+  opportunity:
+    enabled: true
+
+  validation:
+    enabled: true
 
 # ==========================================================
 # Opportunity Score
@@ -235,6 +260,8 @@ dashboard:
   show_last_updated: true
 
   decimal_places: 2
+
+  date_format: "%d-%b-%Y"
 
 # ==========================================================
 # Cache
