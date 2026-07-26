@@ -34,6 +34,7 @@ def write_csv(filename, header, rows):
 
 HEADER = [
     "Symbol",
+    "YahooTicker",
     "Name",
     "Category",
     "Exchange",
