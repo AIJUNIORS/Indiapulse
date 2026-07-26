@@ -1,13 +1,48 @@
 #!/usr/bin/env python3
 """
 IndiaPulse - Provider Registry & Symbol Mapping
-Milestone 3 - Backend Foundation
+Milestone 3 - Backend Foundation (v2 - reconciled against 112 live NSE
+indices on dhan.co/all-nse-indices, discover_tickers.py output pending)
 
 Maps each asset class / category to a data provider, and maps our
 internal universe symbols to the ticker format each provider expects.
 Currently "yfinance" is the only implemented provider; "manual" is a
 placeholder for macro series that need to be sourced from RBI/MOSPI/GSTN
 APIs or manual CSV upload (Phase 5+).
+
+CHANGELOG (this revision):
+- MNC: NIFTY_MNC.NS (404) -> ^CNXMNC (confirmed live, deep CNX-legacy
+  history, same family as ^CNXAUTO/^CNXFMCG/^CNXMETAL etc.)
+- NIFTYLARGEMIDCAP250: was wrongly proxied to ^CNX200 (duplicate of
+  NIFTY200) -> corrected to NIFTY_LARGEMID250.NS, confirmed real ticker
+  on Yahoo (was misclassified THIN by a period=2y test; real depth
+  unconfirmed until discover_tickers.py re-checks with period="max")
+- NIFTYRETAIL: fixed typo "NIFTIY_INDIA_RETAIL.NS" -> "NIFTY_INDIA_RETAIL.NS"
+- ESG: fixed "NIFTY100ESG.NS" -> "NIFTY100_ESG.NS"
+- VALUE20: "NIFTY50VALUE20.NS" (404) -> "NV20.NS" (confirmed OK, 499 rows)
+- Removed all "^INR10Y" fixed-income proxies. That ticker is the US
+  10-Year Treasury, not an Indian G-Sec series -- it was silently
+  feeding US rates into GSEC10Y/GSEC813/SDL/CORPBOND. Set to None
+  pending discover_tickers.py against the real NSE G-Sec bucket names
+  (Nifty 4-8 Yr G-Sec / 11-15 Yr / 15 Yr Plus / Composite G-Sec).
+- Fixed 8 categories that were silently duplicating another category's
+  ticker due to copy-paste (not distinct data, and in 2 cases actively
+  wrong): NIFTYTELECOM, NIFTYCONSTRUCTION, NIFTYPOWER, NIFTYRENEWABLE,
+  NIFTYHOTELS, NIFTYSHIPPING, TOURISM, MOBILITY, GROWTH. Each now
+  points at its own confirmed-real NSE index name (per dhan.co live
+  list) with ticker=None pending discovery, instead of quietly
+  re-fetching a neighboring category's data under a different label.
+- Swapped 6 factor/theme indices that only return 1 row on Yahoo
+  (real index, but too new/thin for backtesting) for the ETF that
+  tracks them, confirmed via your own verify_proxy_tickers.py run
+  (ALPHA50, QUALITY30, MOMENTUM30, LOWVOL30, DIVIDEND, DIVIDEND50,
+  EQUALWEIGHT). Per "index if not ETF" -- these fall back to ETF.
+- Added 3 new categories to reach the 108-index target, reconciled
+  against dhan.co's live NSE index list: NIFTYIPO, NIFTYMIDCAPSELECT,
+  NIFTYFINSERVICE2550. Tickers unconfirmed (None) pending discovery.
+- Every ticker=None entry is intentional: better to skip cleanly in
+  the downloader than to silently pull wrong/duplicate data. Run
+  discover_tickers.py and fill these in from its output.
 """
 
 # ---------------------------------------------------------------------
@@ -38,32 +73,37 @@ PROVIDERS = {
 # Symbol map: internal Symbol -> provider-specific ticker
 # Indices use Yahoo's ^ prefix; stocks would use the .NS suffix (not
 # used yet since Milestone 2 universe is index-level only).
+#
+# ticker = None means: no confirmed working Yahoo ticker yet. The
+# downloader should skip these cleanly (log + continue), not attempt
+# a fetch. Do NOT fill these in by guessing -- run discover_tickers.py
+# and confirm real row count with period="max" first.
 # ---------------------------------------------------------------------
 
 YFINANCE_SYMBOL_MAP = {
-    # Broad Market
+    # ---- Broad Market (15) ----
     "NIFTY50": "^NSEI",
     "NIFTYNEXT50": "^NSMIDCP",
     "NIFTY100": "^CNX100",
     "NIFTY200": "^CNX200",
     "NIFTY500": "^CRSLDX",
-    "NIFTYLARGEMIDCAP250": "^CNX200",  # proxy
-    "NIFTYTOTALMARKET": "^CRSLDX",  # proxy
+    "NIFTYLARGEMIDCAP250": "NIFTY_LARGEMID250.NS",  # FIXED: was dup of NIFTY200
+    "NIFTYTOTALMARKET": "^CRSLDX",  # intentional dup: no separate Yahoo total-market ticker
     "NIFTYMIDCAP50": "^NSEMDCP50",
     "NIFTYMIDCAP100": "NIFTY_MIDCAP_100.NS",
     "NIFTYMIDCAP150": "NIFTYMIDCAP150.NS",
-    "NIFTYSMALLCAP50": "NIFTYSMLCAP50.NS",
-    "NIFTYSMALLCAP100": "^CNXSC",
+    "NIFTYSMALLCAP50": "SMALLCAP.NS",  # ETF fallback (index ticker THIN, ETF confirmed 497 rows)
+    "NIFTYSMALLCAP100": "^CNXSC",  # TODO: recheck with period=max, currently THIN
     "NIFTYSMALLCAP250": "NIFTYSMLCAP250.NS",
-    "NIFTYMICROCAP250": "NIFTY_MICROCAP250.NS",
-    "NIFTYMEGA250": "NIFTY_MEGA_CAP_250.NS",
+    "NIFTYMICROCAP250": "NIFTY_MICROCAP250.NS",  # TODO: THIN, no ETF fallback found yet
+    "NIFTYMEGA250": None,  # TODO: no working Yahoo ticker found (tried 3 variants, all 404)
 
-    # Sectors
+    # ---- Sectors (20) ----
     "NIFTYAUTO": "^CNXAUTO",
     "NIFTYBANK": "^NSEBANK",
     "NIFTYFINSERVICE": "NIFTY_FIN_SERVICE.NS",
     "NIFTYFMCG": "^CNXFMCG",
-    "NIFTYHEALTHCARE": "NIFTY_HEALTHCARE.NS",
+    "NIFTYHEALTHCARE": "NIFTY_HEALTHCARE.NS",  # TODO: THIN, ETF fallback HEALTHY.NS is OK (499 rows)
     "NIFTYIT": "^CNXIT",
     "NIFTYMEDIA": "^CNXMEDIA",
     "NIFTYMETAL": "^CNXMETAL",
@@ -71,8 +111,8 @@ YFINANCE_SYMBOL_MAP = {
     "NIFTYPSUBANK": "^CNXPSUBANK",
     "NIFTYPRIVATEBANK": "NIFTY_PVT_BANK.NS",
     "NIFTYREALTY": "^CNXREALTY",
-    "NIFTYCONSUMERDURABLES": "NIFTY_CONSR_DURBL.NS",
-    "NIFTYOILGAS": "NIFTY_OIL_AND_GAS.NS",
+    "NIFTYCONSUMERDURABLES": "CONSUMBEES.NS",  # ETF fallback (index THIN, ETF confirmed 493 rows)
+    "NIFTYOILGAS": "NIFTY_OIL_AND_GAS.NS",  # TODO: THIN
     "NIFTYENERGY": "^CNXENERGY",
     "NIFTYINFRA": "^CNXINFRA",
     "NIFTYCOMMODITIES": "^CNXCMDT",
@@ -80,85 +120,98 @@ YFINANCE_SYMBOL_MAP = {
     "NIFTYCONSUMPTION": "^CNXCONSUM",
     "NIFTYPSE": "^CNXPSE",
 
-    # Industries
-    "NIFTYCHEMICAL": "NIFTY_CHEMICALS.NS",
-    "NIFTYCAPITALMARKET": "NIFTY_CAPITAL_MKT.NS",
-    "NIFTYTELECOM": "NIFTY_MEDIA.NS",  # proxy until telecom index verified
-    "NIFTYLOGISTICS": "NIFTY_LOGISTICS.NS",
-    "NIFTYAVIATION": "NIFTY_AVIATION.NS",
-    "NIFTYCEMENT": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYCONSTRUCTION": "NIFTY_INFRA.NS",  # proxy
-    "NIFTYDEFENCE": "NIFTY_IND_DEFENCE.NS",
-    "NIFTYRETAIL": "NIFTIY_INDIA_RETAIL.NS",
-    "NIFTYTEXTILE": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYSUGAR": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYFERTILIZER": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYAUTOCOMP": "^CNXAUTO",  # proxy
-    "NIFTYPOWER": "NIFTY_ENERGY.NS",  # proxy
-    "NIFTYHOSPITAL": "NIFTY_HEALTHCARE.NS",  # proxy
-    "NIFTYINSURANCE": "NIFTY_FIN_SERVICE.NS",  # proxy
-    "NIFTYNBFC": "NIFTY_FIN_SERVICE.NS",  # proxy
-    "NIFTYINTERNET": "NIFTY_IND_DIGITAL.NS",  # closer match than Media; same ticker as DIGITAL theme
-    "NIFTYRENEWABLE": "NIFTY_ENERGY.NS",  # proxy
-    "NIFTYCABLE": "^CNXMETAL",  # proxy
-    "NIFTYELECTRICAL": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYPACKAGING": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYENGINEERING": "NIFTY_INDIA_MFG.NS",  # proxy
-    "NIFTYHOTELS": "NIFTY_AVIATION.NS",  # proxy (tourism-linked)
-    "NIFTYSHIPPING": "NIFTY_LOGISTICS.NS",  # proxy
+    # ---- Industries (25) ----
+    "NIFTYCHEMICAL": "NIFTY_CHEMICALS.NS",  # TODO: THIN, no ETF found
+    "NIFTYCAPITALMARKET": "NIFTY_CAPITAL_MKT.NS",  # real name confirmed "Nifty Capital Markets"; TODO recheck THIN
+    "NIFTYTELECOM": None,  # FIXED: was wrongly dup of Media. Real: "Nifty Mid Small IT & Telecom". TODO ticker
+    "NIFTYLOGISTICS": None,  # FIXED: 404. Real name: "Nifty Transportation & Logistics". TODO ticker
+    "NIFTYAVIATION": None,  # TODO: 404, no working alternative found yet
+    "NIFTYCEMENT": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy: no distinct Cement index on NSE
+    "NIFTYCONSTRUCTION": None,  # FIXED: was wrongly dup of Infra. No distinct index confirmed. TODO
+    "NIFTYDEFENCE": "NIFTY_IND_DEFENCE.NS",  # real name confirmed "Nifty India Defence"; TODO recheck THIN
+    "NIFTYRETAIL": "NIFTY_INDIA_RETAIL.NS",  # FIXED: typo "NIFTIY_..." -> "NIFTY_..."; still 404, TODO
+    "NIFTYTEXTILE": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy: no distinct index on NSE
+    "NIFTYSUGAR": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy
+    "NIFTYFERTILIZER": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy
+    "NIFTYAUTOCOMP": "^CNXAUTO",  # intentional dup: no separate Auto Components index on Yahoo
+    "NIFTYPOWER": None,  # FIXED: was wrongly dup of Energy. No distinct NSE index; consider BSE POWER instead
+    "NIFTYHOSPITAL": "NIFTY_HEALTHCARE.NS",  # intentional dup: no separate Hospital index
+    "NIFTYINSURANCE": "NIFTY_FIN_SERVICE.NS",  # intentional dup: no separate Insurance index on Yahoo
+    "NIFTYNBFC": "NIFTY_FIN_SERVICE.NS",  # intentional dup: no separate NBFC index on Yahoo
+    "NIFTYINTERNET": "NIFTY_IND_DIGITAL.NS",  # intentional dup with DIGITAL theme (same underlying index)
+    "NIFTYRENEWABLE": None,  # FIXED: was wrongly dup of Energy. No distinct index confirmed. TODO
+    "NIFTYCABLE": "^CNXMETAL",  # REVIEW: unclear this is the right proxy for "Cable" -- verify intent
+    "NIFTYELECTRICAL": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy
+    "NIFTYPACKAGING": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy
+    "NIFTYENGINEERING": "NIFTY_INDIA_MFG.NS",  # intentional generic proxy
+    "NIFTYHOTELS": None,  # FIXED: was wrongly dup of Aviation. Likely folds into Tourism. TODO
+    "NIFTYSHIPPING": None,  # FIXED: was wrongly dup of Logistics. Same real index as NIFTYLOGISTICS
 
-    # Themes
-    "MANUFACTURING": "NIFTY_INDIA_MFG.NS",
-    "DEFENCE": "NIFTY_IND_DEFENCE.NS",
-    "EV": "NIFTY_EV.NS",
-    "DIGITAL": "NIFTY_IND_DIGITAL.NS",
-    "CPSE": "NIFTY_CPSE.NS",
-    "PSU": "^CNXPSE",
-    "RURAL": "NIFTY_RURAL.NS",
-    "HOUSING": "NIFTY_HOUSING.NS",
-    "TOURISM": "NIFTY_AVIATION.NS",  # proxy
-    "ESG": "NIFTY100ESG.NS",
-    "INFRA": "^CNXINFRA",
-    "MNC": "NIFTY_MNC.NS",
-    "CONSUMPTION": "^CNXCONSUM",
-    "MOBILITY": "NIFTY_EV.NS",  # proxy
-    "DIVIDEND": "NIFTY_DIV_OPPS_50.NS",
+    # ---- Themes (15) ----
+    "MANUFACTURING": "NIFTY_INDIA_MFG.NS",  # real name confirmed "Nifty India Manufacturing"
+    "DEFENCE": "NIFTY_IND_DEFENCE.NS",  # intentional dup with NIFTYDEFENCE (same real index)
+    "EV": "NIFTY_EV.NS",  # real name confirmed "Nifty EV and New Age Auto"; TODO recheck THIN
+    "DIGITAL": "NIFTY_IND_DIGITAL.NS",  # real name confirmed "Nifty India Digital"
+    "CPSE": "NIFTY_CPSE.NS",  # real name confirmed "Nifty CPSE"; TODO recheck THIN
+    "PSU": "^CNXPSE",  # intentional dup with NIFTYPSE
+    "RURAL": "NIFTY_RURAL.NS",  # real name confirmed "Nifty Rural"; TODO recheck THIN
+    "HOUSING": "NIFTY_HOUSING.NS",  # real name confirmed "Nifty Housing"; TODO recheck THIN
+    "TOURISM": None,  # FIXED: was wrongly dup of Aviation. Real: "Nifty India Tourism". TODO ticker
+    "ESG": "NIFTY100_ESG.NS",  # FIXED: was "NIFTY100ESG.NS" (missing underscore); still THIN, TODO
+    "INFRA": "^CNXINFRA",  # intentional dup with NIFTYINFRA
+    "MNC": "^CNXMNC",  # FIXED: was NIFTY_MNC.NS (404) -> confirmed live on Yahoo, deep history
+    "CONSUMPTION": "^CNXCONSUM",  # intentional dup with NIFTYCONSUMPTION
+    "MOBILITY": None,  # FIXED: was wrongly dup of EV. Real: "Nifty Mobility" (distinct). TODO ticker
+    "DIVIDEND": "DIVOPPBEES.NS",  # ETF fallback (index 404, ETF confirmed 493 rows)
 
-    # Factors
-    "ALPHA50": "NIFTYALPHA50.NS",
-    "QUALITY30": "NIFTY200QUALTY30.NS",
-    "VALUE20": "NIFTY50VALUE20.NS",
-    "MOMENTUM30": "NIFTY200MOMENTM30.NS",
-    "LOWVOL30": "NIFTY100LOWVOL30.NS",
-    "HIGHBETA": "NIFTYHIGHBETA50.NS",
-    "LOWBETA": "NIFTYLOWVOL50.NS",  # proxy
-    "EQUALWEIGHT": "NIFTY50EQL.NS",
-    "DIVIDEND50": "NIFTY_DIV_OPPS_50.NS",
-    "GROWTH": "NIFTY200QUALTY30.NS",  # proxy
+    # ---- Factors (10) ----
+    "ALPHA50": "ALPL30IETF.NS",  # ETF fallback (NIFTYALPHA50.NS is real but THIN; ETF confirmed 493 rows)
+    "QUALITY30": "QUAL30IETF.NS",  # ETF fallback (confirmed 493 rows)
+    "VALUE20": "NV20.NS",  # FIXED: "NIFTY50VALUE20.NS" 404'd -> confirmed OK, 499 rows
+    "MOMENTUM30": "MOM30IETF.NS",  # ETF fallback (confirmed 493 rows)
+    "LOWVOL30": "LOWVOLIETF.NS",  # ETF fallback (confirmed 493 rows)
+    "HIGHBETA": None,  # TODO: 404, no ETF fallback found (tried 2 variants)
+    "LOWBETA": None,  # TODO: 404, may just duplicate LOWVOL30's concept -- review whether distinct
+    "EQUALWEIGHT": "EQUAL50.NS",  # ETF fallback (confirmed 299 rows; SBINEQWETF.NS alt, 344 rows)
+    "DIVIDEND50": "DIVOPPBEES.NS",  # intentional dup with DIVIDEND: same real index
+    "GROWTH": None,  # FIXED: was wrongly dup of QUALITY30. Real: "Nifty Growth Sectors 15". TODO ticker
 
-    # Fixed Income (best-effort proxies; refine with bond ETFs)
-    "GSEC10Y": "^INR10Y",
-    "GSEC813": "^INR10Y",  # proxy
-    "SDL": "^INR10Y",  # proxy
-    "BHARATBOND2030": "BHARATBOND2030.NS",  # proxy - may need ETF ticker
-    "BHARATBOND2031": "BHARATBOND2031.NS",
-    "CORPBOND": "^INR10Y",  # proxy
+    # ---- Fixed Income (8) ----
+    # All four "*.NS G-Sec proxies" below were pointed at ^INR10Y, which
+    # is the US 10-Year Treasury -- a real correctness bug, not just a
+    # thin-data issue. Set to None until discover_tickers.py confirms
+    # tickers for NSE's actual G-Sec bucket family: Nifty 4-8 Yr G-Sec /
+    # Nifty 11-15 Yr G-Sec / Nifty 15 Yr Plus G-Sec / Nifty Composite G-Sec.
+    "GSEC10Y": None,  # was ^INR10Y (WRONG: US Treasury). TODO: map to a real NSE G-Sec bucket
+    "GSEC813": None,  # was ^INR10Y (WRONG). Closest real bucket: "Nifty 4-8 Yr G-Sec". TODO
+    "SDL": None,  # was ^INR10Y (WRONG). SDL is a distinct index family from G-Sec entirely. TODO
+    "BHARATBOND2030": "BHARATBOND2030.NS",  # TODO: 404, likely needs the actual fund's ISIN-based ticker
+    "BHARATBOND2031": "BHARATBOND2031.NS",  # TODO: 404, same issue
+    "CORPBOND": None,  # was ^INR10Y (WRONG). TODO: needs a real corporate bond index/ETF ticker
     "LIQUID": "LIQUIDBEES.NS",
-    "MONEYMARKET": "LIQUIDBEES.NS",  # proxy
+    "MONEYMARKET": "LIQUIDBEES.NS",  # intentional dup: no separate money-market index ETF confirmed
 
-    # Commodities
+    # ---- Commodities (12) ----
     "GOLD": "GC=F",
     "SILVER": "SI=F",
     "COPPER": "HG=F",
     "ALUMINIUM": "ALI=F",
     "ZINC": "ZNC=F",
-    "NICKEL": "NICKEL=F",
-    "LEAD": "LEAD=F",
+    "NICKEL": None,  # TODO: Yahoo doesn't carry this future under NICKEL=F or any variant tried
+    "LEAD": None,  # TODO: same issue as Nickel
     "BRENT": "BZ=F",
     "WTI": "CL=F",
     "NATGAS": "NG=F",
     "COAL": "MTF=F",
     "STEEL": "HRC=F",
+
+    # ---- New: added to reach 108-index target ----
+    # Reconciled against dhan.co/all-nse-indices (112 live-quoted NSE
+    # indices) -- each of these is a real, distinct, currently-traded
+    # index that wasn't already covered above. Tickers unconfirmed.
+    "NIFTYIPO": None,  # "Nifty IPO" -- distinct theme, no overlap with existing categories
+    "NIFTYMIDCAPSELECT": None,  # "Nifty Midcap Select" -- distinct from Midcap50/100/150
+    "NIFTYFINSERVICE2550": None,  # "Nifty Financial Services 25/50" -- distinct from NIFTYFINSERVICE
 }
 
 
@@ -169,5 +222,10 @@ def get_provider_for_asset_class(asset_class: str) -> str:
 
 
 def get_yfinance_ticker(symbol: str) -> str | None:
-    """Return the Yahoo Finance ticker for an internal universe symbol."""
+    """Return the Yahoo Finance ticker for an internal universe symbol.
+
+    May return None -- callers (the downloader) must handle this by
+    skipping the symbol with a log line, not by crashing or silently
+    substituting another ticker.
+    """
     return YFINANCE_SYMBOL_MAP.get(symbol)
