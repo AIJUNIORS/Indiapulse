@@ -1,0 +1,72 @@
+name: Build data + deploy dashboard
+
+on:
+  schedule:
+    # 06:15 UTC ≈ after NSE close (IST) and before US pre-market — adjust as needed
+    - cron: "15 6 * * 1-5"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline (download + analytics + export)
+        run: python -m backend.main --download
+
+      - name: Verify JSON was produced
+        run: |
+          test -n "$(ls -A json/*.json 2>/dev/null)" || (echo "::error::No JSON exported — aborting deploy" && exit 1)
+
+      # Stage a site/ directory that preserves the exact relative-path
+      # structure the frontend expects: json/ one level above the deepest
+      # pages, frontend/index.html one level above json/.
+      #   site/index.html              -> redirects to frontend/index.html
+      #   site/frontend/...            -> copy of frontend/
+      #   site/json/*.json             -> freshly generated data
+      - name: Stage site
+        run: |
+          mkdir -p site
+          cp -r frontend site/frontend
+          cp -r json site/json
+          cat > site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=frontend/index.html">
+          <link rel="canonical" href="frontend/index.html">
+          <p><a href="frontend/index.html">Continue to IndiaPulse</a></p>
+          EOF
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
