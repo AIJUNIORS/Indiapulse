@@ -18,8 +18,10 @@ import pandas as pd
 
 from backend.config import UNIVERSE_DIR, HISTORICAL_DIR, DEFAULT_PERIOD, \
     DEFAULT_INTERVAL, MAX_RETRIES, RETRY_BACKOFF, RATE_LIMIT_SLEEP
+from backend.custom_index import build_equal_weight_index
+from backend.external import fetch_external
 from backend.logger import get_logger
-from backend.sources import get_provider_for_asset_class, get_yfinance_ticker
+from backend.sources import get_provider_for_asset_class, get_source
 from backend.utils import read_universe_csv, safe_symbol_filename
 
 log = get_logger("download")
@@ -118,15 +120,16 @@ def download_symbol(row: dict, incremental: bool = False,
     asset_class = row.get("AssetClass", "Equity")
     provider = get_provider_for_asset_class(asset_class)
 
-    if provider != "yfinance":
+    if provider not in ("yfinance", "unknown"):
         log.info("Skipping %s: provider '%s' not yet implemented", symbol, provider)
         return False
 
-    ticker = get_yfinance_ticker(symbol)
-    if not ticker:
-        log.warning("No ticker mapping found for symbol '%s'; skipping", symbol)
+    entry = get_source(symbol)
+    if not entry:
+        log.warning("No source mapping found for symbol '%s'; skipping", symbol)
         return False
 
+    source_type = entry.get("source")
     out_path = _existing_data_path(symbol)
 
     dl_period = period
@@ -143,7 +146,22 @@ def download_symbol(row: dict, incremental: bool = False,
         except Exception as exc:  # noqa: BLE001
             log.warning("Could not read existing data for %s (%s); doing full download", symbol, exc)
 
-    df = _download_with_retry(ticker, dl_period, interval)
+    if source_type in ("INDEX", "ETF", "FUTURE"):
+        ticker = entry.get("ticker")
+        if not ticker:
+            log.warning("%s: '%s' entry has no ticker yet; skipping", symbol, source_type)
+            return False
+        df = _download_with_retry(ticker, dl_period, interval)
+    elif source_type == "CUSTOM":
+        symbols = entry.get("symbols", [])
+        log.info("%s: building custom equal-weight index from %s", symbol, symbols)
+        df = build_equal_weight_index(symbols, dl_period, interval)
+    elif source_type == "EXTERNAL":
+        df = fetch_external(symbol, entry.get("provider", "unknown"))
+    else:
+        log.warning("%s: unrecognized source type '%s'; skipping", symbol, source_type)
+        return False
+
     if df is None:
         return False
 
