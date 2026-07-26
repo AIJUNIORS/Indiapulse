@@ -1,1 +1,11 @@
-Symbol,Name,Category,Provider,Exchange,Active,Remarks
+Symbol,Name,Category,Exchange,Provider,AssetClass,Frequency,Priority,Active,Remarks
+ALPHA50,Alpha 50,Factor,NSE,NSE,Equity,Daily,1,True,
+QUALITY30,Quality 30,Factor,NSE,NSE,Equity,Daily,2,True,
+VALUE20,Value 20,Factor,NSE,NSE,Equity,Daily,3,True,
+MOMENTUM30,Momentum 30,Factor,NSE,NSE,Equity,Daily,4,True,
+LOWVOL30,Low Volatility 30,Factor,NSE,NSE,Equity,Daily,5,True,
+HIGHBETA,High Beta,Factor,NSE,NSE,Equity,Daily,6,True,
+LOWBETA,Low Beta,Factor,NSE,NSE,Equity,Daily,7,True,
+EQUALWEIGHT,Equal Weight,Factor,NSE,NSE,Equity,Daily,8,True,
+DIVIDEND50,Dividend Opportunities 50,Factor,NSE,NSE,Equity,Daily,9,True,
+GROWTH,Growth,Factor,NSE,NSE,Equity,Daily,10,True,

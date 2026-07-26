@@ -1,1 +1,9 @@
-Symbol,Name,Category,Provider,Exchange,Active,Remarks
+Symbol,Name,Category,Exchange,Provider,AssetClass,Frequency,Priority,Active,Remarks
+GSEC10Y,10 Year G-Sec,Fixed Income,NSE,NSE,Bond,Daily,1,True,
+GSEC813,8-13 Year G-Sec,Fixed Income,NSE,NSE,Bond,Daily,2,True,
+SDL,State Development Loan,Fixed Income,NSE,NSE,Bond,Daily,3,True,
+BHARATBOND2030,Bharat Bond 2030,Fixed Income,NSE,NSE,Bond,Daily,4,True,
+BHARATBOND2031,Bharat Bond 2031,Fixed Income,NSE,NSE,Bond,Daily,5,True,
+CORPBOND,Corporate Bond,Fixed Income,NSE,NSE,Bond,Daily,6,True,
+LIQUID,Liquid Index,Fixed Income,NSE,NSE,Bond,Daily,7,True,
+MONEYMARKET,Money Market,Fixed Income,NSE,NSE,Bond,Daily,8,True,

@@ -1,1 +1,13 @@
-Symbol,Name,Category,Provider,Exchange,Active,Remarks
+Symbol,Name,Category,Exchange,Provider,AssetClass,Frequency,Priority,Active,Remarks
+GOLD,Gold,Commodity,MCX,MCX,Commodity,Daily,1,True,
+SILVER,Silver,Commodity,MCX,MCX,Commodity,Daily,2,True,
+COPPER,Copper,Commodity,MCX,MCX,Commodity,Daily,3,True,
+ALUMINIUM,Aluminium,Commodity,MCX,MCX,Commodity,Daily,4,True,
+ZINC,Zinc,Commodity,MCX,MCX,Commodity,Daily,5,True,
+NICKEL,Nickel,Commodity,MCX,MCX,Commodity,Daily,6,True,
+LEAD,Lead,Commodity,MCX,MCX,Commodity,Daily,7,True,
+BRENT,Brent Crude,Commodity,ICE,ICE,Commodity,Daily,8,True,
+WTI,WTI Crude,Commodity,NYMEX,NYMEX,Commodity,Daily,9,True,
+NATGAS,Natural Gas,Commodity,MCX,MCX,Commodity,Daily,10,True,
+COAL,Coal,Commodity,Global,Various,Commodity,Daily,11,True,
+STEEL,Steel,Commodity,Global,Various,Commodity,Daily,12,True,
