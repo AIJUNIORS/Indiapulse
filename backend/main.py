@@ -18,6 +18,7 @@ from backend.analytics.summary import summarize_symbol
 from backend.analytics.breadth import compute_breadth
 from backend.analytics.cycle import compute_cycle
 from backend.export import export_category, export_opportunity_board
+from backend.macro import download_macro_universe, get_cycle_inputs
 from backend.utils import safe_symbol_filename
 
 log = get_logger("main")
@@ -49,12 +50,22 @@ def run_pipeline(incremental: bool = False, do_download: bool = False) -> None:
     if do_download:
         log.info("Running download stage (incremental=%s)...", incremental)
         download_universe(incremental=incremental)
+        download_macro_universe(incremental=incremental)
 
     universe = load_universe()
     log.info("Computing analytics for %d symbols...", len(universe))
 
-    # Placeholder macro cycle - Phase 5+ will feed this from real macro data.
-    cycle_result = compute_cycle(growth_trend=0.0, inflation_trend=0.0, rate_direction="hold")
+    # Macro cycle inputs, derived from whatever macro series have been
+    # downloaded so far (see backend/macro.py). Falls back to a neutral
+    # 0.0/0.0/"hold" reading per-field, with a log line, for any series
+    # not yet populated (most need the RBI/MOSPI/GSTN connectors from
+    # backend/external.py, which aren't implemented yet).
+    macro_inputs = get_cycle_inputs()
+    cycle_result = compute_cycle(
+        growth_trend=macro_inputs["growth_trend"],
+        inflation_trend=macro_inputs["inflation_trend"],
+        rate_direction=macro_inputs["rate_direction"],
+    )
 
     by_category: dict[str, list[dict]] = {}
     all_results: list[dict] = []
