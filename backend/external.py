@@ -22,11 +22,17 @@ from backend.logger import get_logger
 
 log = get_logger("external")
 
-# Providers referenced by sources.py EXTERNAL entries, and their status.
+# Providers referenced by sources.py EXTERNAL entries (and macro.csv's
+# Provider column, via backend/macro.py), and their status.
 SUPPORTED_PROVIDERS = {
-    "RBI": "not_implemented",     # G-Sec buckets, SDL, corporate bond indices
+    "RBI": "not_implemented",       # G-Sec buckets, SDL, corp bonds, repo/CRR, forex reserves
     "NSE_DEBT": "not_implemented",  # NSE Debt segment series
-    "LME": "not_implemented",     # London Metal Exchange (Nickel, Lead, ...)
+    "LME": "not_implemented",       # London Metal Exchange (Nickel, Lead, ...)
+    "MOSPI": "not_implemented",     # CPI, GDP, IIP
+    "GSTN": "not_implemented",      # GST collections
+    "S&P": "not_implemented",       # PMI Manufacturing / Services
+    "NSDL": "not_implemented",      # FII/DII net flows
+    "Commerce": "not_implemented",  # WPI
 }
 
 
