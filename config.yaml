@@ -1,0 +1,244 @@
+# ==========================================================
+# IndiaPulse Configuration v1.0
+# ==========================================================
+
+project:
+  name: IndiaPulse
+  version: "1.0.0"
+  description: Indian Market Intelligence Platform
+  author: AIJUNIORS
+
+environment:
+  mode: production               # development | production
+  timezone: Asia/Kolkata
+  currency: INR
+  country: India
+
+# ==========================================================
+# Market
+# ==========================================================
+
+market:
+  exchange: NSE
+  benchmark: NIFTY50
+
+# ==========================================================
+# Scheduler
+# ==========================================================
+
+scheduler:
+  enabled: true
+  frequency: daily
+  run_time: "20:00"
+  timezone: Asia/Kolkata
+
+# ==========================================================
+# Automation
+# ==========================================================
+
+automation:
+  auto_download: true
+  auto_update_history: true
+  auto_calculate_indicators: true
+  auto_calculate_analytics: true
+  auto_generate_json: true
+  auto_publish_github_pages: true
+
+# ==========================================================
+# Data Providers
+# ==========================================================
+
+data_provider:
+
+  market:
+    primary: NSE
+    fallback: YahooFinance
+
+  macro:
+    primary: RBI
+
+# ==========================================================
+# Folder Structure
+# ==========================================================
+
+paths:
+
+  historical_data: data/historical
+
+  latest_data: data/latest
+
+  universe: data/universe
+
+  json_output: json
+
+  reports: reports
+
+  logs: logs
+
+# ==========================================================
+# Universe Files
+# ==========================================================
+
+universe:
+
+  broad_market: data/universe/broad_market.csv
+
+  sectors: data/universe/sectors.csv
+
+  industries: data/universe/industries.csv
+
+  themes: data/universe/themes.csv
+
+  factors: data/universe/factors.csv
+
+  fixed_income: data/universe/fixed_income.csv
+
+  commodities: data/universe/commodities.csv
+
+  macro: data/universe/macro.csv
+
+# ==========================================================
+# Download
+# ==========================================================
+
+download:
+
+  interval: 1d
+
+  history_years: 15
+
+  incremental_update: true
+
+  overwrite_existing: false
+
+  retry_attempts: 3
+
+  timeout_seconds: 30
+
+# ==========================================================
+# Validation
+# ==========================================================
+
+validation:
+
+  verify_latest_trading_day: true
+
+  skip_if_already_updated_today: true
+
+  fill_missing_data: false
+
+# ==========================================================
+# Indicator Parameters
+# ==========================================================
+
+indicators:
+
+  moving_average:
+    short: 20
+    medium: 50
+    long: 200
+
+  momentum:
+    short: 20
+    medium: 60
+    long: 120
+
+  volatility:
+    short: 20
+    medium: 60
+    annual: 252
+
+  atr:
+    period: 14
+
+  rsi:
+    period: 14
+
+  macd:
+    fast: 12
+    slow: 26
+    signal: 9
+
+# ==========================================================
+# Analytics Parameters
+# ==========================================================
+
+analytics:
+
+  seasonality:
+    lookback_years: 15
+    minimum_history_years: 10
+    remove_outliers: true
+    confidence_level: 95
+
+  breadth:
+    moving_average: 200
+
+  market_cycle:
+    smoothing_period: 20
+
+# ==========================================================
+# Opportunity Score
+# ==========================================================
+
+opportunity_score:
+
+  seasonality: 35
+
+  macro_cycle: 30
+
+  momentum: 20
+
+  valuation: 15
+
+# ==========================================================
+# JSON Export
+# ==========================================================
+
+export:
+
+  overwrite_existing: true
+
+  dashboard: json/dashboard.json
+
+  broad_market: json/broad_market.json
+
+  sectors: json/sectors.json
+
+  industries: json/industries.json
+
+  themes: json/themes.json
+
+  factors: json/factors.json
+
+  fixed_income: json/fixed_income.json
+
+  commodities: json/commodities.json
+
+  macro: json/macro.json
+
+  universe: json/universe.json
+
+# ==========================================================
+# Logging
+# ==========================================================
+
+logging:
+
+  enabled: true
+
+  level: INFO
+
+  file: logs/indiapulse.log
+
+# ==========================================================
+# Development
+# ==========================================================
+
+development:
+
+  debug: false
+
+  save_intermediate_files: false
+
+  overwrite_existing: true
