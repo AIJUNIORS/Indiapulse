@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IndiaPulse — Macro Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <nav class="ip-nav">
+    <div class="brand">India<em>Pulse</em></div>
+    <div class="ip-nav-links">
+      <a href="../index.html">Global</a>
+      <a href="macro.html" class="active">Macro</a>
+      <a href="../markets/broad-market.html">Market</a>
+      <a href="../markets/sectors.html">Sectors</a>
+      <a href="../markets/industries.html">Industries</a>
+      <a href="../markets/themes.html">Themes</a>
+      <a href="../markets/factors.html">Factors</a>
+      <a href="../commodities/commodities.html">Commodities</a>
+      <a href="../analytics/compare.html">Opportunity</a>
+    </div>
+  </nav>
+
+  <div class="ip-shell">
+    <p class="ip-eyebrow">CPI · WPI · GDP · Repo Rate · FII/DII · PMI</p>
+    <h1 class="ip-title">Macro Dashboard</h1>
+    <p class="ip-subtitle">
+      Macro series are defined in <code>data/universe/macro.csv</code> but are not yet wired to a live
+      provider — <code>sources.py</code> currently registers the <code>Macro</code> asset class under a
+      <code>manual</code> provider pending an RBI / MOSPI / GSTN connector (Phase 5+). The table below
+      lists the tracked series and the cycle stage the current placeholder inputs resolve to.
+    </p>
+
+    <div class="ip-grid" id="cycle-cards"></div>
+
+    <div class="ip-panel">
+      <h2>Tracked Macro Series</h2>
+      <div id="macro-table"></div>
+    </div>
+
+    <div class="ip-footer">
+      IndiaPulse · Source: <code>data/universe/macro.csv</code> · Live values pending macro data connector.
+    </div>
+  </div>
+
+<script src="../assets/ip.js"></script>
+<script>
+(async function () {
+  const cardsEl = document.getElementById("cycle-cards");
+  const tableEl = document.getElementById("macro-table");
+
+  cardsEl.innerHTML = `
+    <div class="ip-card"><div class="label">Cycle Stage</div><div class="value">Recovery</div><div class="sub">placeholder — Phase 5 input</div></div>
+    <div class="ip-card"><div class="label">Inflation Trend</div><div class="value">—</div></div>
+    <div class="ip-card"><div class="label">Growth Trend</div><div class="value">—</div></div>
+    <div class="ip-card"><div class="label">Monetary Stance</div><div class="value">Hold</div></div>
+  `;
+
+  try {
+    const res = await fetch("../../data/universe/macro.csv", { cache: "no-store" });
+    const text = await res.text();
+    const [headerLine, ...lines] = text.trim().split("\\n");
+    const headers = headerLine.split(",");
+    const rows = lines.filter(Boolean).map(line => {
+      const cells = line.split(",");
+      return Object.fromEntries(headers.map((h, i) => [h, cells[i]]));
+    });
+
+    const body = rows.map(r => `
+      <tr>
+        <td class="symbol">${r.Symbol}</td>
+        <td>${r.Name}</td>
+        <td>${r.Category}</td>
+        <td>${r.Frequency}</td>
+        <td>${r.Unit}</td>
+        <td>${r.Source}</td>
+      </tr>
+    `).join("");
+
+    tableEl.innerHTML = `
+      <table class="ip-table">
+        <thead><tr><th>Symbol</th><th>Name</th><th>Category</th><th>Frequency</th><th>Unit</th><th>Source</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    IP.renderEmpty(tableEl, "Could not load macro.csv — open this dashboard via a local static server (not file://) so relative fetches work.");
+  }
+})();
+</script>
+</body>
+</html>
