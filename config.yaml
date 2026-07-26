@@ -1,12 +1,21 @@
 # ==========================================================
 # IndiaPulse Configuration v1.0
 # ==========================================================
+# Project      : IndiaPulse
+# Version      : 1.0.0
+# Author       : AIJUNIORS
+# Description  : Indian Market Intelligence Platform
+# ==========================================================
 
 project:
   name: IndiaPulse
   version: "1.0.0"
   description: Indian Market Intelligence Platform
   author: AIJUNIORS
+
+# ==========================================================
+# Environment
+# ==========================================================
 
 environment:
   mode: production               # development | production
@@ -21,6 +30,16 @@ environment:
 market:
   exchange: NSE
   benchmark: NIFTY50
+
+# ==========================================================
+# Market Calendar
+# ==========================================================
+
+market_calendar:
+  trading_days: Monday-Friday
+  market_open: "09:15"
+  market_close: "15:30"
+  update_after_close: true
 
 # ==========================================================
 # Scheduler
@@ -76,7 +95,7 @@ paths:
   logs: logs
 
 # ==========================================================
-# Universe Files
+# Market Universe Files
 # ==========================================================
 
 universe:
@@ -98,7 +117,7 @@ universe:
   macro: data/universe/macro.csv
 
 # ==========================================================
-# Download
+# Download Configuration
 # ==========================================================
 
 download:
@@ -128,7 +147,7 @@ validation:
   fill_missing_data: false
 
 # ==========================================================
-# Indicator Parameters
+# Technical Indicators
 # ==========================================================
 
 indicators:
@@ -160,7 +179,7 @@ indicators:
     signal: 9
 
 # ==========================================================
-# Analytics Parameters
+# Analytics
 # ==========================================================
 
 analytics:
@@ -192,32 +211,40 @@ opportunity_score:
   valuation: 15
 
 # ==========================================================
-# JSON Export
+# Export
 # ==========================================================
 
 export:
 
   overwrite_existing: true
 
-  dashboard: json/dashboard.json
+  output_directory: json
 
-  broad_market: json/broad_market.json
+  pretty_print: true
 
-  sectors: json/sectors.json
+# ==========================================================
+# Dashboard
+# ==========================================================
 
-  industries: json/industries.json
+dashboard:
 
-  themes: json/themes.json
+  default_group: broad_market
 
-  factors: json/factors.json
+  default_theme: light
 
-  fixed_income: json/fixed_income.json
+  show_last_updated: true
 
-  commodities: json/commodities.json
+  decimal_places: 2
 
-  macro: json/macro.json
+# ==========================================================
+# Cache
+# ==========================================================
 
-  universe: json/universe.json
+cache:
+
+  enabled: true
+
+  refresh_every_run: true
 
 # ==========================================================
 # Logging
