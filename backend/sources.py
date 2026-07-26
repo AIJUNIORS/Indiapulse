@@ -1,11 +1,41 @@
 """
-Supported Data Sources
+IndiaPulse
+Data Source Registry
 """
 
-SOURCES = {
-    "NSE": "National Stock Exchange",
-    "Yahoo": "Yahoo Finance",
-    "MCX": "Multi Commodity Exchange",
-    "RBI": "Reserve Bank of India",
-    "MOSPI": "Ministry of Statistics"
+# ---------------------------------------------------------------------
+# Supported Data Providers
+# ---------------------------------------------------------------------
+
+PROVIDERS = {
+    "Equity": "yfinance",
+    "Commodity": "yfinance",
+    "Bond": "yfinance",
+    "FX": "yfinance",
+    "Macro": "manual"
 }
+
+# ---------------------------------------------------------------------
+# Provider Details
+# ---------------------------------------------------------------------
+
+SOURCE_DETAILS = {
+    "yfinance": {
+        "name": "Yahoo Finance",
+        "history": True,
+        "intraday": True
+    },
+    "manual": {
+        "name": "Manual / Government Source",
+        "history": False,
+        "intraday": False
+    }
+}
+
+# ---------------------------------------------------------------------
+# Helper
+# ---------------------------------------------------------------------
+
+def get_provider(asset_class: str) -> str:
+    """Return the download provider for an asset class."""
+    return PROVIDERS.get(asset_class, "unknown")
