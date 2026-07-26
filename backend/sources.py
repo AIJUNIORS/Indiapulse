@@ -54,8 +54,12 @@ CHANGELOG (this revision, superseding the v2 flat YFINANCE_SYMBOL_MAP):
   CORPBOND are unmapped (None) pending a real NSE G-Sec/corp-bond
   ticker; SDL is routed to the External source (RBI/NSE Debt, not
   yet implemented -- see backend/external.py).
-- NICKEL and LEAD routed to the External source (LME) instead of a
-  guessed/nonexistent Yahoo futures ticker.
+- NICKEL and LEAD now map to real, actively-quoted Yahoo ETNs (JJN =
+  iPath Bloomberg Nickel Subindex, LD = iPath Bloomberg Lead Subindex)
+  instead of a guessed futures ticker or the External/LME placeholder.
+  These are futures-linked notes, not literal LME spot/futures, but
+  they're the standard Yahoo-accessible proxy for base-metal price
+  exposure -- the same idea as GC=F/SI=F for gold/silver.
 - GROWTH and LOWBETA left unmapped (None): no confirmed distinct
   ticker exists yet for either ("Nifty Growth Sectors 15" and a truly
   distinct low-beta index respectively) -- do not guess.
@@ -238,8 +242,8 @@ SOURCE_REGISTRY = {
     "COPPER": {"source": "FUTURE", "ticker": "HG=F"},
     "ALUMINIUM": {"source": "FUTURE", "ticker": "ALI=F"},
     "ZINC": {"source": "FUTURE", "ticker": "ZNC=F"},
-    "NICKEL": {"source": "EXTERNAL", "provider": "LME"},
-    "LEAD": {"source": "EXTERNAL", "provider": "LME"},
+    "NICKEL": {"source": "ETF", "ticker": "JJN"},  # iPath Series B Bloomberg Nickel Subindex ETN, confirmed live on Yahoo
+    "LEAD": {"source": "ETF", "ticker": "LD"},  # iPath Bloomberg Lead Subindex ETN, confirmed live on Yahoo
     "BRENT": {"source": "FUTURE", "ticker": "BZ=F"},
     "WTI": {"source": "FUTURE", "ticker": "CL=F"},
     "NATGAS": {"source": "FUTURE", "ticker": "NG=F"},
