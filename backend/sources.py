@@ -170,7 +170,7 @@ SOURCE_REGISTRY = {
     "NIFTYSUGAR": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYFERTILIZER": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYAUTOCOMP": {"source": "INDEX", "ticker": "^CNXAUTO"},  # intentional dup: no separate Auto Components index
-    "NIFTYPOWER": None,  # no distinct index/custom basket defined yet; do NOT reuse Energy
+    "NIFTYPOWER": {"source": "CUSTOM", "method": "equal_weight", "symbols": ["NTPC.NS", "POWERGRID.NS", "TATAPOWER.NS", "ADANIPOWER.NS"]},
     "NIFTYHOSPITAL": {"source": "ETF", "ticker": "PHARMABEES.NS"},  # intentional dup: no separate Hospital index
     "NIFTYINSURANCE": {"source": "INDEX", "ticker": "NIFTY_FIN_SERVICE.NS"},  # intentional dup: no separate Insurance index
     "NIFTYNBFC": {"source": "INDEX", "ticker": "NIFTY_FIN_SERVICE.NS"},  # intentional dup: no separate NBFC index
@@ -204,7 +204,7 @@ SOURCE_REGISTRY = {
     "PSU": {"source": "INDEX", "ticker": "^CNXPSE"},  # intentional dup with NIFTYPSE
     "RURAL": {"source": "INDEX", "ticker": "NIFTY_RURAL.NS"},
     "HOUSING": {"source": "INDEX", "ticker": "NIFTY_HOUSING.NS"},
-    "TOURISM": None,  # no confirmed distinct index/custom basket yet; do NOT reuse Aviation/Hotels
+    "TOURISM": {"source": "CUSTOM", "method": "equal_weight", "symbols": ["THOMASCOOK.NS", "IRCTC.NS", "EASEMYTRIP.NS"]},
     "ESG": {"source": "ETF", "ticker": "ESG.NS"},
     "INFRA": {"source": "INDEX", "ticker": "^CNXINFRA"},  # intentional dup with NIFTYINFRA
     "MNC": {"source": "INDEX", "ticker": "^CNXMNC"},
@@ -227,7 +227,7 @@ SOURCE_REGISTRY = {
     "GROWTH": None,  # real index is "Nifty Growth Sectors 15"; ticker unconfirmed
 
     # ---- Fixed Income (8) ----
-    "GSEC10Y": None,  # needs a real NSE G-Sec bucket ticker; ^INR10Y (US Treasury) removed
+    "GSEC10Y": {"source": "INDEX", "ticker": "GSEC10YEAR.NS"},  # confirmed 497 rows via discover_tickers.py
     "GSEC813": None,  # closest real bucket: "Nifty 4-8 Yr G-Sec"; ticker unconfirmed
     "SDL": {"source": "EXTERNAL", "provider": "RBI"},  # distinct index family from G-Sec entirely
     "BHARATBOND2030": {"source": "ETF", "ticker": None},  # needs the fund's ISIN-based ticker, not the generic name
