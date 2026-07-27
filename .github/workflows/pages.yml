@@ -31,8 +31,41 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run pipeline (download + analytics + export)
-        run: python -m backend.main --download
+      # data/historical/ is gitignored on purpose (per the "download max
+      # history once, then append daily" design) but Actions runners are
+      # ephemeral -- without caching, every run would start from empty
+      # and update.py's incremental=True would silently do a full
+      # download every single time, defeating the point. This cache
+      # persists it across runs so incremental actually means incremental.
+      - name: Cache historical data
+        id: cache-historical
+        uses: actions/cache@v4
+        with:
+          path: data/historical
+          key: indiapulse-historical-${{ github.run_id }}
+          restore-keys: |
+            indiapulse-historical-
+
+      - name: Decide bootstrap vs incremental
+        id: mode
+        run: |
+          if [ -z "$(ls -A data/historical/*.csv 2>/dev/null)" ]; then
+            echo "mode=bootstrap" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=incremental" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bootstrap full download (first run / no cached data)
+        if: steps.mode.outputs.mode == 'bootstrap'
+        run: |
+          echo "No historical data restored from cache -- running full download once."
+          python -m backend.main --download
+
+      - name: Incremental update (append-only, recompute analytics, export)
+        if: steps.mode.outputs.mode == 'incremental'
+        run: |
+          echo "Historical data found ($(ls data/historical/*.csv | wc -l) files) -- running incremental update."
+          python -m backend.update
 
       - name: Verify JSON was produced
         run: |
