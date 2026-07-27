@@ -33,9 +33,10 @@ CHANGELOG (this revision, superseding the v2 flat YFINANCE_SYMBOL_MAP):
   Construction->Infra, Renewable/Power->Energy, Cable->Metal) now
   resolve to real IndiaPulse Custom Indices (top-3 market leaders,
   equal weighted) built by backend/custom_index.py, per the "never use
-  unrelated proxies" rule. NIFTYPOWER has no distinct custom index
-  defined yet and is intentionally left unmapped (None) rather than
-  re-pointed at Energy.
+  unrelated proxies" rule. NIFTYPOWER now resolves to its own Custom Index (NTPC, POWERGRID,
+  TATAPOWER, ADANIPOWER; equal weighted), confirmed via
+  discover_tickers.py, rather than being left unmapped or re-pointed
+  at Energy.
 - MOBILITY promoted from a dup of EV to its own Custom Index (auto
   OEMs), since it's a distinct concept (transportation demand, not
   EV-adoption specifically).
@@ -50,9 +51,9 @@ CHANGELOG (this revision, superseding the v2 flat YFINANCE_SYMBOL_MAP):
   EqualWeight -> EQUAL50.NS. Theme "Defence" now uses its own ETF
   (GROWWDEFNC.NS) rather than duplicating the Industry Defence index.
 - Removed the "^INR10Y" fixed-income proxies (that ticker is the US
-  10-Year Treasury, not an Indian G-Sec series). GSEC10Y/GSEC813/
-  CORPBOND are unmapped (None) pending a real NSE G-Sec/corp-bond
-  ticker; SDL is routed to the External source (RBI/NSE Debt, not
+  10-Year Treasury, not an Indian G-Sec series). GSEC10Y is now resolved to GSEC10YEAR.NS (confirmed 497 rows via
+  discover_tickers.py). GSEC813/CORPBOND remain unmapped (None)
+  pending a real NSE G-Sec/corp-bond ticker; SDL is routed to the External source (RBI/NSE Debt, not
   yet implemented -- see backend/external.py).
 - NICKEL and LEAD now map to real, actively-quoted Yahoo ETNs (JJN =
   iPath Bloomberg Nickel Subindex, LD = iPath Bloomberg Lead Subindex)
