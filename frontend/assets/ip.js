@@ -66,22 +66,48 @@ const IP = (() => {
     `;
   }
 
-  function renderSummaryCards(container, results) {
-    if (!results || results.length === 0) {
+  function renderSummaryCards(container, payload) {
+    const results = payload?.data || [];
+    if (!results.length && !payload?.count) {
       renderEmpty(container, "No data yet.");
       return;
     }
+    const total = payload?.count ?? results.length;
+    const scored = payload?.scored_count ?? results.length;
+    const gaps = payload?.coverage_gaps?.length ?? 0;
     const bullish = results.filter(r => r.trend?.trend === "Bullish").length;
-    const avgOpp = (results.reduce((a, r) => a + (r.opportunity?.opportunity_score ?? 0), 0) / results.length).toFixed(1);
+    const avgOpp = payload?.avg_opportunity_score != null ? payload.avg_opportunity_score.toFixed(1) : "—";
     const strongSeason = results.filter(r => r.seasonality?.seasonality === "Seasonally Strong").length;
     const top = [...results].sort((a, b) => (b.opportunity?.opportunity_score ?? 0) - (a.opportunity?.opportunity_score ?? 0))[0];
 
     container.innerHTML = `
-      <div class="ip-card"><div class="label">Constituents</div><div class="value">${results.length}</div></div>
-      <div class="ip-card"><div class="label">Bullish Trend</div><div class="value">${bullish}/${results.length}</div></div>
+      <div class="ip-card"><div class="label">Constituents</div><div class="value">${total}</div>${gaps ? `<div class="sub">${scored} scored · ${gaps} pending data</div>` : ""}</div>
+      <div class="ip-card"><div class="label">Bullish Trend</div><div class="value">${bullish}/${scored}</div></div>
       <div class="ip-card"><div class="label">Avg Opportunity Score</div><div class="value">${avgOpp}</div></div>
       <div class="ip-card"><div class="label">Seasonally Strong</div><div class="value">${strongSeason}</div></div>
       <div class="ip-card"><div class="label">Top Symbol</div><div class="value">${top?.symbol ?? "—"}</div><div class="sub">${top?.opportunity?.opportunity_score ?? ""}</div></div>
+    `;
+  }
+
+  function renderCoverageGaps(container, gaps) {
+    if (!gaps || gaps.length === 0) {
+      container.innerHTML = "";
+      container.style.display = "none";
+      return;
+    }
+    container.style.display = "";
+    const body = gaps.map(g => `
+      <tr>
+        <td class="symbol">${g.symbol}</td>
+        <td>${g.category ?? ""}</td>
+        <td>${g.reason ?? "insufficient underlying data"}</td>
+      </tr>
+    `).join("");
+    container.innerHTML = `
+      <table class="ip-table">
+        <thead><tr><th>Symbol</th><th>Category</th><th>Why it's not ranked</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>
     `;
   }
 
@@ -117,5 +143,5 @@ const IP = (() => {
     `;
   }
 
-  return { loadCategory, tag, scoreBar, renderEmpty, renderOpportunityTable, renderSummaryCards, renderDetailTable };
+  return { loadCategory, tag, scoreBar, renderEmpty, renderOpportunityTable, renderSummaryCards, renderDetailTable, renderCoverageGaps };
 })();

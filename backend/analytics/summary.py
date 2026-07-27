@@ -32,15 +32,16 @@ def summarize_symbol(symbol: str, df: pd.DataFrame, category: str = "",
     cycle = macro_cycle_result or {"cycle_stage": "Unknown", "score": 50.0}
 
     opportunity = compute_opportunity_score(
-        seasonality_score=seasonality.get("score", 50.0),
-        cycle_score=cycle.get("score", 50.0),
-        momentum_score=momentum.get("score", 50.0),
-        valuation_score=valuation.get("score", 50.0),
+        seasonality_score=seasonality.get("score"),
+        cycle_score=cycle.get("score"),
+        momentum_score=momentum.get("score"),
+        valuation_score=valuation.get("score"),
     )
 
     result = {
         "symbol": symbol,
         "category": category,
+        "data_sufficient": opportunity.get("data_sufficient", False),
         "trend": trend,
         "momentum": momentum,
         "volatility": volatility,

@@ -27,10 +27,16 @@ def build_seasonal_index(close: pd.Series) -> dict:
     """
     Returns per-month average return (outlier-trimmed) and a 0-100
     seasonal score for the *current* calendar month.
+
+    Returns score=None (not a fabricated neutral 50) when there's no
+    monthly-return history at all, or when there's less history than
+    SEASONALITY['min_years'] -- a seasonal average built from only 1-2
+    years isn't statistically reliable enough to rank a symbol on.
     """
     m_returns = monthly_returns(close).dropna()
     if m_returns.empty:
-        return {"seasonality": "Insufficient Data", "score": 50.0}
+        return {"seasonality": "Insufficient Data", "score": None, "data_sufficient": False,
+                "years_covered": 0}
 
     years_covered = m_returns.index.year.nunique()
     df = m_returns.to_frame("ret")
@@ -46,7 +52,19 @@ def build_seasonal_index(close: pd.Series) -> dict:
         monthly_avg[month] = float(trimmed.mean()) if not trimmed.empty else float(month_vals.mean())
 
     if not monthly_avg:
-        return {"seasonality": "Insufficient Data", "score": 50.0}
+        return {"seasonality": "Insufficient Data", "score": None, "data_sufficient": False,
+                "years_covered": int(years_covered)}
+
+    min_years = SEASONALITY["min_years"]
+    if years_covered < min_years:
+        return {
+            "seasonality": "Insufficient Data",
+            "score": None,
+            "data_sufficient": False,
+            "years_covered": int(years_covered),
+            "years_required": min_years,
+            "monthly_index": {str(k): round(v, 2) for k, v in monthly_avg.items()},
+        }
 
     all_vals = list(monthly_avg.values())
     current_month = pd.Timestamp.now().month
@@ -63,8 +81,8 @@ def build_seasonal_index(close: pd.Series) -> dict:
     return {
         "seasonality": label,
         "score": round(score, 2),
+        "data_sufficient": True,
         "years_covered": int(years_covered),
         "current_month_avg_return_pct": round(current_avg, 2),
         "monthly_index": {str(k): round(v, 2) for k, v in monthly_avg.items()},
-        "sufficient_history": years_covered >= SEASONALITY["min_years"],
     }

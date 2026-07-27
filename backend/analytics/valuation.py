@@ -13,7 +13,7 @@ def compute_valuation(pe: float | None = None, pb: float | None = None,
                        dividend_yield: float | None = None,
                        sector_avg_pe: float | None = None) -> dict:
     if pe is None or sector_avg_pe is None:
-        return {"valuation": "No Data", "score": 50.0}
+        return {"valuation": "No Data", "score": None, "data_sufficient": False}
 
     # Cheaper relative to sector average -> higher score
     ratio = pe / sector_avg_pe if sector_avg_pe else 1.0
@@ -29,6 +29,7 @@ def compute_valuation(pe: float | None = None, pb: float | None = None,
     return {
         "valuation": label,
         "score": round(score, 2),
+        "data_sufficient": True,
         "pe": pe,
         "pb": pb,
         "dividend_yield": dividend_yield,

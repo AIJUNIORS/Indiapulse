@@ -18,7 +18,13 @@ from backend.config import INDICATORS
 def compute_momentum(df: pd.DataFrame) -> dict:
     close = df["Close"].dropna()
     if len(close) < 60:
-        return {"momentum": "Insufficient Data", "score": 50.0}
+        return {
+            "momentum": "Insufficient Data",
+            "score": None,
+            "data_sufficient": False,
+            "rows_available": len(close),
+            "rows_required": 60,
+        }
 
     rsi_val = rsi(close, INDICATORS["rsi_period"]).iloc[-1]
     macd_df = macd(close, INDICATORS["macd_fast"], INDICATORS["macd_slow"], INDICATORS["macd_signal"])
@@ -41,6 +47,7 @@ def compute_momentum(df: pd.DataFrame) -> dict:
     return {
         "momentum": label,
         "score": round(score, 2),
+        "data_sufficient": True,
         "rsi": round(float(rsi_val), 2),
         "macd_histogram": round(float(macd_hist), 4),
         "roc": round(float(roc_val), 2),

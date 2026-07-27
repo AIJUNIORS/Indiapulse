@@ -16,10 +16,21 @@ def compute_trend(df: pd.DataFrame) -> dict:
     """
     df must contain a 'Close' column with a DatetimeIndex.
     Returns a dict describing the current trend state.
+
+    When there isn't enough history to compute the 200-day SMA
+    reliably, this returns score=None (not a fabricated neutral 50) so
+    downstream code (opportunity.py, export.py) can tell the difference
+    between "genuinely neutral" and "we don't actually know yet."
     """
     close = df["Close"].dropna()
     if len(close) < 210:
-        return {"trend": "Insufficient Data", "score": 50.0}
+        return {
+            "trend": "Insufficient Data",
+            "score": None,
+            "data_sufficient": False,
+            "rows_available": len(close),
+            "rows_required": 210,
+        }
 
     sma20 = sma(close, 20).iloc[-1]
     sma50 = sma(close, 50).iloc[-1]
@@ -47,6 +58,7 @@ def compute_trend(df: pd.DataFrame) -> dict:
     return {
         "trend": label,
         "score": round(score, 2),
+        "data_sufficient": True,
         "price": round(float(price), 2),
         "sma20": round(float(sma20), 2),
         "sma50": round(float(sma50), 2),

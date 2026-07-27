@@ -6,7 +6,7 @@
 <title>IndiaPulse — Global Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
   <nav class="ip-nav">
@@ -34,6 +34,7 @@
     <div class="ip-panel">
       <h2>Top Opportunities (All Categories)</h2>
       <div id="opportunity-table"></div>
+      <p class="ip-subtitle" id="coverage-note" style="display:none; margin-top:12px;"></p>
     </div>
 
     <div class="ip-footer">
@@ -41,29 +42,38 @@
     </div>
   </div>
 
-<script src="ip.js"></script>
+<script src="assets/ip.js"></script>
 <script>
 (async function () {
   const cardsEl = document.getElementById("summary-cards");
   const tableEl = document.getElementById("opportunity-table");
+  const noteEl = document.getElementById("coverage-note");
   try {
     const opp = await IP.loadCategory("opportunity", { depth: 1 });
     const rows = opp.ranking || [];
+    const total = opp.count ?? rows.length;
+    const scored = opp.scored_count ?? rows.length;
+    const gaps = opp.coverage_gaps || [];
 
     const bullish = rows.filter(r => r.trend === "Bullish").length;
-    const avgOpp = rows.length ? (rows.reduce((a, r) => a + (r.opportunity_score ?? 0), 0) / rows.length).toFixed(1) : "—";
+    const avgOpp = opp.avg_opportunity_score != null ? opp.avg_opportunity_score.toFixed(1) : "—";
     const strongSeason = rows.filter(r => r.seasonality === "Seasonally Strong").length;
     const top = rows[0];
 
     cardsEl.innerHTML = `
-      <div class="ip-card"><div class="label">Universe Tracked</div><div class="value">${rows.length}</div></div>
-      <div class="ip-card"><div class="label">Bullish Trend</div><div class="value">${bullish}/${rows.length}</div></div>
+      <div class="ip-card"><div class="label">Universe Tracked</div><div class="value">${total}</div>${gaps.length ? `<div class="sub">${scored} scored · ${gaps.length} pending data</div>` : ""}</div>
+      <div class="ip-card"><div class="label">Bullish Trend</div><div class="value">${bullish}/${scored}</div></div>
       <div class="ip-card"><div class="label">Avg Opportunity Score</div><div class="value">${avgOpp}</div></div>
       <div class="ip-card"><div class="label">Seasonally Strong</div><div class="value">${strongSeason}</div></div>
       <div class="ip-card"><div class="label">Top Opportunity</div><div class="value">${top?.symbol ?? "—"}</div><div class="sub">${top?.opportunity_score ?? ""}</div></div>
     `;
 
     IP.renderOpportunityTable(tableEl, rows, { limit: 15 });
+
+    if (gaps.length) {
+      noteEl.style.display = "";
+      noteEl.innerHTML = `${gaps.length} symbol${gaps.length === 1 ? "" : "s"} excluded pending sufficient price history — see the full list on the <a href="analytics/compare.html">Opportunity Ranking</a> page.`;
+    }
   } catch (e) {
     IP.renderEmpty(cardsEl, "No data yet — run the backend pipeline: python -m backend.main --download");
     IP.renderEmpty(tableEl, String(e));

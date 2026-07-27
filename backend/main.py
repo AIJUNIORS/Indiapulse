@@ -85,7 +85,7 @@ def run_pipeline(incremental: bool = False, do_download: bool = False) -> None:
 
     for json_key, results in by_category.items():
         export_category(json_key, results)
-        trend_scores = [r["trend"]["score"] for r in results if "score" in r.get("trend", {})]
+        trend_scores = [r["trend"]["score"] for r in results if r.get("trend", {}).get("score") is not None]
         if trend_scores:
             breadth = compute_breadth(trend_scores)
             log.info("%s breadth: %s (%.1f%%)", json_key, breadth["breadth"], breadth["score"])
