@@ -75,7 +75,6 @@ broad_market = [
 ["NIFTYSMALLCAP250","Nifty Smallcap 250","Broad Market","NSE","NSE","Equity","Daily",13,True,""],
 
 
-["NIFTYMEGA250","Nifty Mega Cap 250","Broad Market","NSE","NSE","Equity","Daily",15,True,""]
 
 ]
 

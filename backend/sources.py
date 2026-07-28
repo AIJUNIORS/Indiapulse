@@ -141,8 +141,14 @@ SOURCE_REGISTRY = {
     "NIFTYPSE": {"source": "INDEX", "ticker": "^CNXPSE"},
 
     # ---- Industries (25) ----
-    "NIFTYCHEMICAL": {"source": "INDEX", "ticker": "NIFTY_CHEMICALS.NS"},
-    "NIFTYCAPITALMARKET": {"source": "INDEX", "ticker": "NIFTY_CAPITAL_MKT.NS"},
+    "NIFTYCHEMICAL": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["PIDILITIND.NS", "SRF.NS", "UPL.NS", "DEEPAKNTR.NS", "AARTIIND.NS"],
+    },
+    "NIFTYCAPITALMARKET": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["HDFCAMC.NS", "BSE.NS", "MCX.NS", "CDSL.NS", "ANGELONE.NS"],
+    },
     "NIFTYTELECOM": {
         "source": "CUSTOM", "method": "equal_weight",
         "symbols": ["BHARTIARTL.NS", "INDUSTOWER.NS", "TATACOMM.NS",
@@ -160,16 +166,31 @@ SOURCE_REGISTRY = {
         "symbols": ["INDIGO.NS", "GMRAIRPORT.NS", "HAL.NS",
                     "DATAPATTNS.NS", "AZAD.NS"],
     },
-    "NIFTYCEMENT": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy: no distinct Cement index
+    "NIFTYCEMENT": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["ULTRACEMCO.NS", "SHREECEM.NS", "AMBUJACEM.NS", "ACC.NS", "DALBHARAT.NS"],
+    },
     "NIFTYCONSTRUCTION": {
         "source": "CUSTOM", "method": "equal_weight",
         "symbols": ["LT.NS", "NCC.NS", "RVNL.NS"],
     },
-    "NIFTYDEFENCE": {"source": "INDEX", "ticker": "NIFTY_IND_DEFENCE.NS"},
+    "NIFTYDEFENCE": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["HAL.NS", "BEL.NS", "BEML.NS", "DATAPATTNS.NS", "AZAD.NS"],
+    },
     "NIFTYRETAIL": {"source": "INDEX", "ticker": "NIFTY_INDIA_RETAIL.NS"},
-    "NIFTYTEXTILE": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
-    "NIFTYSUGAR": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
-    "NIFTYFERTILIZER": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
+    "NIFTYTEXTILE": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["PAGEIND.NS", "TRIDENT.NS", "VTL.NS", "WELSPUNLIV.NS", "KPRMILL.NS"],
+    },
+    "NIFTYSUGAR": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["BALRAMCHIN.NS", "EIDPARRY.NS", "DWARKESH.NS", "DALMIASUG.NS", "TRIVENI.NS"],
+    },
+    "NIFTYFERTILIZER": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["COROMANDEL.NS", "CHAMBLFERT.NS", "GNFC.NS", "RCF.NS", "NFL.NS"],
+    },
     "NIFTYAUTOCOMP": {"source": "INDEX", "ticker": "^CNXAUTO"},  # intentional dup: no separate Auto Components index
     "NIFTYPOWER": {
         "source": "CUSTOM", "method": "equal_weight",
@@ -193,9 +214,18 @@ SOURCE_REGISTRY = {
         "symbols": ["POLYCAB.NS", "KEI.NS", "RRKABEL.NS",
                     "FINCABLES.NS", "UNIVCABLES.NS"],
     },
-    "NIFTYELECTRICAL": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
-    "NIFTYPACKAGING": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
-    "NIFTYENGINEERING": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
+    "NIFTYELECTRICAL": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["HAVELLS.NS", "POLYCAB.NS", "CGPOWER.NS", "ABB.NS", "SIEMENS.NS"],
+    },
+    "NIFTYPACKAGING": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["UFLEX.NS", "TCPLPACK.NS", "HUHTAMAKI.NS", "COSMOFIRST.NS", "EPL.NS"],
+    },
+    "NIFTYENGINEERING": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["LT.NS", "THERMAX.NS", "CUMMINSIND.NS", "BHARATFORG.NS", "KIRLOSENG.NS"],
+    },
     "NIFTYHOTELS": {
         "source": "CUSTOM", "method": "equal_weight",
         "symbols": ["INDHOTEL.NS", "EIHOTEL.NS", "CHALET.NS",
@@ -211,12 +241,24 @@ SOURCE_REGISTRY = {
     # ---- Themes (15) ----
     "MANUFACTURING": {"source": "ETF", "ticker": "MAKEINDIA.NS"},
     "DEFENCE": {"source": "ETF", "ticker": "GROWWDEFNC.NS"},  # own ETF, decoupled from Industry Defence index
-    "EV": {"source": "INDEX", "ticker": "NIFTY_EV.NS"},
+    "EV": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["OLECTRA.NS", "EXIDEIND.NS", "ARE&M.NS", "TVSMOTOR.NS", "M&M.NS"],
+    },
     "DIGITAL": {"source": "ETF", "ticker": "TNIDETF.NS"},
-    "CPSE": {"source": "INDEX", "ticker": "NIFTY_CPSE.NS"},
+    "CPSE": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["ONGC.NS", "COALINDIA.NS", "NTPC.NS", "POWERGRID.NS", "IOC.NS"],
+    },
     "PSU": {"source": "INDEX", "ticker": "^CNXPSE"},  # intentional dup with NIFTYPSE
-    "RURAL": {"source": "INDEX", "ticker": "NIFTY_RURAL.NS"},
-    "HOUSING": {"source": "INDEX", "ticker": "NIFTY_HOUSING.NS"},
+    "RURAL": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["M&M.NS", "HEROMOTOCO.NS", "ITC.NS", "COROMANDEL.NS", "ESCORTS.NS"],
+    },
+    "HOUSING": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["DLF.NS", "GODREJPROP.NS", "OBEROIRLTY.NS", "LICHSGFIN.NS", "SOBHA.NS"],
+    },
     "TOURISM": {
         "source": "CUSTOM", "method": "equal_weight",
         "symbols": ["IRCTC.NS", "THOMASCOOK.NS", "EASEMYTRIP.NS",
