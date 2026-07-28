@@ -16,12 +16,11 @@ from backend.analytics.risk import compute_risk
 from backend.analytics.seasonality import build_seasonal_index
 from backend.analytics.valuation import compute_valuation
 from backend.analytics.opportunity import compute_opportunity_score
-from backend.analytics.cycle import compute_cycle
 from backend.analytics.validation import validate_symbol_result
 
 
 def summarize_symbol(symbol: str, df: pd.DataFrame, category: str = "",
-                      macro_cycle_result: dict | None = None) -> dict:
+) -> dict:
     """Compute the full analytics stack for a single symbol's OHLCV data."""
     trend = compute_trend(df)
     momentum = compute_momentum(df)
@@ -29,8 +28,6 @@ def summarize_symbol(symbol: str, df: pd.DataFrame, category: str = "",
     risk = compute_risk(volatility)
     seasonality = build_seasonal_index(df["Close"].dropna())
     valuation = compute_valuation()  # neutral until fundamentals provider exists
-    cycle = macro_cycle_result or {"cycle_stage": "Unknown", "score": 50.0}
-
     opportunity = compute_opportunity_score(
         seasonality_score=seasonality.get("score"),
         cycle_score=cycle.get("score"),
@@ -48,7 +45,6 @@ def summarize_symbol(symbol: str, df: pd.DataFrame, category: str = "",
         "risk": risk,
         "seasonality": seasonality,
         "valuation": valuation,
-        "cycle": cycle,
         "opportunity": opportunity,
     }
 

@@ -49,6 +49,7 @@ RATE_SYMBOL = "REPO_RATE"
 # macro.csv needs an RBI/MOSPI/GSTN connector (Milestone 5+).
 MACRO_SOURCE_REGISTRY = {
     "USDINR": {"source": "FX", "ticker": "USDINR=X"},
+    "INDIAVIX": {"source": "INDEX", "ticker": "^INDIAVIX"},
 }
 
 

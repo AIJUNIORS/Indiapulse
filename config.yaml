@@ -19,10 +19,9 @@ download:
   rate_limit_sleep: 1.0
 
 opportunity_weights:
-  seasonality: 0.35
-  macro_cycle: 0.30
-  momentum: 0.20
-  valuation: 0.15
+  seasonality: 0.5
+  momentum: 0.2857
+  valuation: 0.2143
 
 indicators:
   sma_periods: [20, 50, 100, 200]
