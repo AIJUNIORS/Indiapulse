@@ -178,7 +178,10 @@ SOURCE_REGISTRY = {
         "source": "CUSTOM", "method": "equal_weight",
         "symbols": ["HAL.NS", "BEL.NS", "BEML.NS", "DATAPATTNS.NS", "AZAD.NS"],
     },
-    "NIFTYRETAIL": {"source": "INDEX", "ticker": "NIFTY_INDIA_RETAIL.NS"},
+    "NIFTYRETAIL": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["DMART.NS", "TRENT.NS", "ABFRL.NS", "TITAN.NS", "VMART.NS"],
+    },
     "NIFTYTEXTILE": {
         "source": "CUSTOM", "method": "equal_weight",
         "symbols": ["PAGEIND.NS", "TRIDENT.NS", "VTL.NS", "WELSPUNLIV.NS", "KPRMILL.NS"],
