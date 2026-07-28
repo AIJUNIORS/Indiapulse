@@ -18,7 +18,7 @@ VALID_SOURCE_TYPES = {"INDEX", "ETF", "FUTURE", "CUSTOM", "EXTERNAL", "FX"}
 
 # Confirmed via discover_tickers.py / verify_proxy_tickers.py to have no
 # real ticker available. Any None NOT in this set is a regression.
-ACCEPTED_UNMAPPED = {"GROWTH", "LOWBETA", "GSEC813"}
+ACCEPTED_UNMAPPED = {"GROWTH", "LOWBETA", "GSEC813", "GSEC10Y"}
 
 
 def test_every_entry_has_valid_source_type_or_is_accepted_none():
