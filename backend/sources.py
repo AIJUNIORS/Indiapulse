@@ -33,10 +33,9 @@ CHANGELOG (this revision, superseding the v2 flat YFINANCE_SYMBOL_MAP):
   Construction->Infra, Renewable/Power->Energy, Cable->Metal) now
   resolve to real IndiaPulse Custom Indices (top-3 market leaders,
   equal weighted) built by backend/custom_index.py, per the "never use
-  unrelated proxies" rule. NIFTYPOWER now resolves to its own Custom Index (NTPC, POWERGRID,
-  TATAPOWER, ADANIPOWER; equal weighted), confirmed via
-  discover_tickers.py, rather than being left unmapped or re-pointed
-  at Energy.
+  unrelated proxies" rule. NIFTYPOWER has no distinct custom index
+  defined yet and is intentionally left unmapped (None) rather than
+  re-pointed at Energy.
 - MOBILITY promoted from a dup of EV to its own Custom Index (auto
   OEMs), since it's a distinct concept (transportation demand, not
   EV-adoption specifically).
@@ -51,9 +50,9 @@ CHANGELOG (this revision, superseding the v2 flat YFINANCE_SYMBOL_MAP):
   EqualWeight -> EQUAL50.NS. Theme "Defence" now uses its own ETF
   (GROWWDEFNC.NS) rather than duplicating the Industry Defence index.
 - Removed the "^INR10Y" fixed-income proxies (that ticker is the US
-  10-Year Treasury, not an Indian G-Sec series). GSEC10Y is now resolved to GSEC10YEAR.NS (confirmed 497 rows via
-  discover_tickers.py). GSEC813/CORPBOND remain unmapped (None)
-  pending a real NSE G-Sec/corp-bond ticker; SDL is routed to the External source (RBI/NSE Debt, not
+  10-Year Treasury, not an Indian G-Sec series). GSEC10Y/GSEC813/
+  CORPBOND are unmapped (None) pending a real NSE G-Sec/corp-bond
+  ticker; SDL is routed to the External source (RBI/NSE Debt, not
   yet implemented -- see backend/external.py).
 - NICKEL and LEAD now map to real, actively-quoted Yahoo ETNs (JJN =
   iPath Bloomberg Nickel Subindex, LD = iPath Bloomberg Lead Subindex)
@@ -113,15 +112,12 @@ SOURCE_REGISTRY = {
     "NIFTY100": {"source": "INDEX", "ticker": "^CNX100"},
     "NIFTY200": {"source": "INDEX", "ticker": "^CNX200"},
     "NIFTY500": {"source": "INDEX", "ticker": "^CRSLDX"},
-    "NIFTYLARGEMIDCAP250": {"source": "INDEX", "ticker": "NIFTY_LARGEMID250.NS"},
     "NIFTYTOTALMARKET": {"source": "INDEX", "ticker": "^CRSLDX"},  # intentional dup: no distinct total-market ticker
     "NIFTYMIDCAP50": {"source": "INDEX", "ticker": "^NSEMDCP50"},
     "NIFTYMIDCAP100": {"source": "INDEX", "ticker": "NIFTY_MIDCAP_100.NS"},
     "NIFTYMIDCAP150": {"source": "INDEX", "ticker": "NIFTYMIDCAP150.NS"},
     "NIFTYSMALLCAP50": {"source": "ETF", "ticker": "SMALLCAP.NS"},  # index THIN; ETF confirmed 497 rows
-    "NIFTYSMALLCAP100": {"source": "INDEX", "ticker": "^CNXSC"},
     "NIFTYSMALLCAP250": {"source": "ETF", "ticker": "HDFCSML250.NS"},
-    "NIFTYMICROCAP250": {"source": "INDEX", "ticker": "NIFTY_MICROCAP250.NS"},
 
     # ---- Sectors (20) ----
     "NIFTYAUTO": {"source": "INDEX", "ticker": "^CNXAUTO"},
@@ -137,7 +133,6 @@ SOURCE_REGISTRY = {
     "NIFTYPRIVATEBANK": {"source": "INDEX", "ticker": "NIFTY_PVT_BANK.NS"},
     "NIFTYREALTY": {"source": "INDEX", "ticker": "^CNXREALTY"},
     "NIFTYCONSUMERDURABLES": {"source": "ETF", "ticker": "CONSUMBEES.NS"},  # index THIN; ETF confirmed 493 rows
-    "NIFTYOILGAS": {"source": "INDEX", "ticker": "NIFTY_OIL_AND_GAS.NS"},
     "NIFTYENERGY": {"source": "INDEX", "ticker": "^CNXENERGY"},
     "NIFTYINFRA": {"source": "INDEX", "ticker": "^CNXINFRA"},
     "NIFTYCOMMODITIES": {"source": "INDEX", "ticker": "^CNXCMDT"},
@@ -150,15 +145,20 @@ SOURCE_REGISTRY = {
     "NIFTYCAPITALMARKET": {"source": "INDEX", "ticker": "NIFTY_CAPITAL_MKT.NS"},
     "NIFTYTELECOM": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["BHARTIARTL.NS", "INDUSTOWER.NS", "TATACOMM.NS"],
+        "symbols": ["BHARTIARTL.NS", "INDUSTOWER.NS", "TATACOMM.NS",
+                    "HFCL.NS", "TEJASNET.NS"],
     },
     "NIFTYLOGISTICS": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["CONCOR.NS", "DELHIVERY.NS", "BLUEDART.NS"],
+        "symbols": ["CONCOR.NS", "DELHIVERY.NS", "BLUEDART.NS",
+                    "TCI.NS", "ALLCARGO.NS"],
     },
     "NIFTYAVIATION": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["INDIGO.NS", "GMRAIRPORT.NS", "SPICEJET.NS"],
+        # SPICEJET dropped (2026 refresh) -- replaced with aerospace
+        # names per updated theme sheet; airline-only basket was thin.
+        "symbols": ["INDIGO.NS", "GMRAIRPORT.NS", "HAL.NS",
+                    "DATAPATTNS.NS", "AZAD.NS"],
     },
     "NIFTYCEMENT": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy: no distinct Cement index
     "NIFTYCONSTRUCTION": {
@@ -171,29 +171,38 @@ SOURCE_REGISTRY = {
     "NIFTYSUGAR": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYFERTILIZER": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYAUTOCOMP": {"source": "INDEX", "ticker": "^CNXAUTO"},  # intentional dup: no separate Auto Components index
-    "NIFTYPOWER": {"source": "CUSTOM", "method": "equal_weight", "symbols": ["NTPC.NS", "POWERGRID.NS", "TATAPOWER.NS", "ADANIPOWER.NS"]},
+    "NIFTYPOWER": None,  # no distinct index/custom basket defined yet; do NOT reuse Energy
     "NIFTYHOSPITAL": {"source": "ETF", "ticker": "PHARMABEES.NS"},  # intentional dup: no separate Hospital index
     "NIFTYINSURANCE": {"source": "INDEX", "ticker": "NIFTY_FIN_SERVICE.NS"},  # intentional dup: no separate Insurance index
     "NIFTYNBFC": {"source": "INDEX", "ticker": "NIFTY_FIN_SERVICE.NS"},  # intentional dup: no separate NBFC index
     "NIFTYINTERNET": {"source": "ETF", "ticker": "TNIDETF.NS"},  # same underlying theme as DIGITAL
     "NIFTYRENEWABLE": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["SUZLON.NS", "WAAREE.NS", "INOXWIND.NS"],
+        # WAAREE.NS -> WAAREEENER.NS: the old ticker resolves to Waaree
+        # Renewable Technologies (a different, smaller listed entity);
+        # Waaree Energies (the intended large-cap solar maker) trades
+        # as WAAREEENER.NS.
+        "symbols": ["SUZLON.NS", "WAAREEENER.NS", "INOXWIND.NS",
+                    "KPIGREEN.NS", "JSWENERGY.NS"],
     },
     "NIFTYCABLE": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["POLYCAB.NS", "KEI.NS", "RRKABEL.NS"],
+        "symbols": ["POLYCAB.NS", "KEI.NS", "RRKABEL.NS",
+                    "FINCABLES.NS", "UNIVCABLES.NS"],
     },
     "NIFTYELECTRICAL": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYPACKAGING": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYENGINEERING": {"source": "INDEX", "ticker": "NIFTY_INDIA_MFG.NS"},  # intentional generic proxy
     "NIFTYHOTELS": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["INDHOTEL.NS", "EIHOTEL.NS", "CHALET.NS"],
+        "symbols": ["INDHOTEL.NS", "EIHOTEL.NS", "CHALET.NS",
+                    "LEMONTREE.NS", "SAMHI.NS"],
     },
     "NIFTYSHIPPING": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["SCI.NS", "GESHIP.NS", "COCHINSHIP.NS"],
+        # Essar Shipping not added -- sheet flagged it "if actively
+        # traded", unconfirmed.
+        "symbols": ["SCI.NS", "GESHIP.NS", "COCHINSHIP.NS", "SCILAL.NS"],
     },
 
     # ---- Themes (15) ----
@@ -205,16 +214,73 @@ SOURCE_REGISTRY = {
     "PSU": {"source": "INDEX", "ticker": "^CNXPSE"},  # intentional dup with NIFTYPSE
     "RURAL": {"source": "INDEX", "ticker": "NIFTY_RURAL.NS"},
     "HOUSING": {"source": "INDEX", "ticker": "NIFTY_HOUSING.NS"},
-    "TOURISM": {"source": "CUSTOM", "method": "equal_weight", "symbols": ["THOMASCOOK.NS", "IRCTC.NS", "EASEMYTRIP.NS"]},
+    "TOURISM": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["IRCTC.NS", "THOMASCOOK.NS", "EASEMYTRIP.NS",
+                    "INDHOTEL.NS", "INDIGO.NS"],
+    },
     "ESG": {"source": "ETF", "ticker": "ESG.NS"},
     "INFRA": {"source": "INDEX", "ticker": "^CNXINFRA"},  # intentional dup with NIFTYINFRA
     "MNC": {"source": "INDEX", "ticker": "^CNXMNC"},
     "CONSUMPTION": {"source": "INDEX", "ticker": "^CNXCONSUM"},  # intentional dup with NIFTYCONSUMPTION
     "MOBILITY": {
         "source": "CUSTOM", "method": "equal_weight",
-        "symbols": ["TATAMOTORS.NS", "M&M.NS", "TVSMOTOR.NS"],
+        # Refreshed to pure OEM basket (2026): TATAMOTORS dropped,
+        # MARUTI/ASHOKLEY/EICHERMOT added per updated theme sheet.
+        "symbols": ["MARUTI.NS", "M&M.NS", "TVSMOTOR.NS",
+                    "ASHOKLEY.NS", "EICHERMOT.NS"],
     },
     "DIVIDEND": {"source": "ETF", "ticker": "DIVOPPBEES.NS"},
+
+    # ---- New Themes (9; added in 2026 theme-sheet refresh) ----
+    "AGRICULTURE": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["UPL.NS", "COROMANDEL.NS", "PIIND.NS",
+                    "ESCORTS.NS", "M&M.NS"],
+    },
+    "EMS": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["DIXON.NS", "KAYNES.NS", "SYRMA.NS",
+                    "PGEL.NS", "AVALON.NS"],
+    },
+    "RAILWAYS": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["RVNL.NS", "IRCON.NS", "IRFC.NS",
+                    "RAILTEL.NS", "TITAGARH.NS"],
+    },
+    "BATTERY": {
+        "source": "CUSTOM", "method": "equal_weight",
+        # ARE&M.NS is Amara Raja's current post-rename ticker (was
+        # AMARAJABAT.NS) -- using both would double-weight one company.
+        "symbols": ["EXIDEIND.NS", "ARE&M.NS", "HBLENGINE.NS",
+                    "HINDCOPPER.NS"],
+    },
+    "SEMICONDUCTOR": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["KAYNES.NS", "CGPOWER.NS", "MOSCHIP.NS",
+                    "TATAELXSI.NS", "DIXON.NS"],
+    },
+    "DATACENTER": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["BBOX.NS", "TEJASNET.NS", "RAILTEL.NS",
+                    "HFCL.NS", "TATACOMM.NS"],
+    },
+    "WATER": {
+        "source": "CUSTOM", "method": "equal_weight",
+        # "EMS Limited" from the source sheet dropped -- its own ticker
+        # was flagged "?" (unverified); confirm on NSE before adding.
+        "symbols": ["WABAG.NS", "IONEXCHANG.NS", "JISLJALEQS.NS", "KSB.NS"],
+    },
+    "SPECIALTYCHEM": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["SRF.NS", "NAVINFLUOR.NS", "DEEPAKNTR.NS",
+                    "AARTIIND.NS", "PIIND.NS"],
+    },
+    "CAPEXINDUSTRIALS": {
+        "source": "CUSTOM", "method": "equal_weight",
+        "symbols": ["LT.NS", "SIEMENS.NS", "ABB.NS",
+                    "CUMMINSIND.NS", "THERMAX.NS"],
+    },
 
     # ---- Factors (9; HIGHBETA removed) ----
     "ALPHA50": {"source": "ETF", "ticker": "ALPL30IETF.NS"},  # ETF fallback, confirmed 493 rows
@@ -228,7 +294,7 @@ SOURCE_REGISTRY = {
     "GROWTH": None,  # real index is "Nifty Growth Sectors 15"; ticker unconfirmed
 
     # ---- Fixed Income (8) ----
-    "GSEC10Y": {"source": "INDEX", "ticker": "GSEC10YEAR.NS"},  # confirmed 497 rows via discover_tickers.py
+    "GSEC10Y": None,  # needs a real NSE G-Sec bucket ticker; ^INR10Y (US Treasury) removed
     "GSEC813": None,  # closest real bucket: "Nifty 4-8 Yr G-Sec"; ticker unconfirmed
     "SDL": {"source": "EXTERNAL", "provider": "RBI"},  # distinct index family from G-Sec entirely
     "BHARATBOND2030": {"source": "ETF", "ticker": None},  # needs the fund's ISIN-based ticker, not the generic name

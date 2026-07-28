@@ -60,7 +60,6 @@ broad_market = [
 
 ["NIFTY500","Nifty 500","Broad Market","NSE","NSE","Equity","Daily",5,True,""],
 
-["NIFTYLARGEMIDCAP250","Nifty LargeMidcap 250","Broad Market","NSE","NSE","Equity","Daily",6,True,""],
 
 ["NIFTYTOTALMARKET","Nifty Total Market","Broad Market","NSE","NSE","Equity","Daily",7,True,""],
 
@@ -72,11 +71,9 @@ broad_market = [
 
 ["NIFTYSMALLCAP50","Nifty Smallcap 50","Broad Market","NSE","NSE","Equity","Daily",11,True,""],
 
-["NIFTYSMALLCAP100","Nifty Smallcap 100","Broad Market","NSE","NSE","Equity","Daily",12,True,""],
 
 ["NIFTYSMALLCAP250","Nifty Smallcap 250","Broad Market","NSE","NSE","Equity","Daily",13,True,""],
 
-["NIFTYMICROCAP250","Nifty Microcap 250","Broad Market","NSE","NSE","Equity","Daily",14,True,""],
 
 ["NIFTYMEGA250","Nifty Mega Cap 250","Broad Market","NSE","NSE","Equity","Daily",15,True,""]
 
@@ -96,7 +93,6 @@ sectors = [
     ["NIFTYPRIVATEBANK","Nifty Private Bank","Sector","NSE","NSE","Equity","Daily",11,True,""],
     ["NIFTYREALTY","Nifty Realty","Sector","NSE","NSE","Equity","Daily",12,True,""],
     ["NIFTYCONSUMERDURABLES","Nifty Consumer Durables","Sector","NSE","NSE","Equity","Daily",13,True,""],
-    ["NIFTYOILGAS","Nifty Oil & Gas","Sector","NSE","NSE","Equity","Daily",14,True,""],
     ["NIFTYENERGY","Nifty Energy","Sector","NSE","NSE","Equity","Daily",15,True,""],
     ["NIFTYINFRA","Nifty Infrastructure","Sector","NSE","NSE","Equity","Daily",16,True,""],
     ["NIFTYCOMMODITIES","Nifty Commodities","Sector","NSE","NSE","Equity","Daily",17,True,""],
@@ -161,7 +157,16 @@ themes = [
 ["MNC","MNC","Theme","NSE","NSE","Equity","Daily",12,True,""],
 ["CONSUMPTION","Consumption","Theme","NSE","NSE","Equity","Daily",13,True,""],
 ["MOBILITY","Mobility","Theme","NSE","NSE","Equity","Daily",14,True,""],
-["DIVIDEND","Dividend Opportunities","Theme","NSE","NSE","Equity","Daily",15,True,""]
+["DIVIDEND","Dividend Opportunities","Theme","NSE","NSE","Equity","Daily",15,True,""],
+["AGRICULTURE","Agriculture","Theme","NSE","NSE","Equity","Daily",16,True,""],
+["EMS","Electronics Manufacturing Services","Theme","NSE","NSE","Equity","Daily",17,True,""],
+["RAILWAYS","Railways","Theme","NSE","NSE","Equity","Daily",18,True,""],
+["BATTERY","Battery & Energy Storage","Theme","NSE","NSE","Equity","Daily",19,True,""],
+["SEMICONDUCTOR","Semiconductor","Theme","NSE","NSE","Equity","Daily",20,True,""],
+["DATACENTER","Data Centers & Digital Infra","Theme","NSE","NSE","Equity","Daily",21,True,""],
+["WATER","Water","Theme","NSE","NSE","Equity","Daily",22,True,""],
+["SPECIALTYCHEM","Specialty Chemicals","Theme","NSE","NSE","Equity","Daily",23,True,""],
+["CAPEXINDUSTRIALS","Capex & Industrials","Theme","NSE","NSE","Equity","Daily",24,True,""]
 
 ]
 
@@ -177,7 +182,6 @@ factors = [
 ["VALUE20","Value 20","Factor","NSE","NSE","Equity","Daily",3,True,""],
 ["MOMENTUM30","Momentum 30","Factor","NSE","NSE","Equity","Daily",4,True,""],
 ["LOWVOL30","Low Volatility 30","Factor","NSE","NSE","Equity","Daily",5,True,""],
-["HIGHBETA","High Beta","Factor","NSE","NSE","Equity","Daily",6,True,""],
 ["LOWBETA","Low Beta","Factor","NSE","NSE","Equity","Daily",7,True,""],
 ["EQUALWEIGHT","Equal Weight","Factor","NSE","NSE","Equity","Daily",8,True,""],
 ["DIVIDEND50","Dividend Opportunities 50","Factor","NSE","NSE","Equity","Daily",9,True,""],
