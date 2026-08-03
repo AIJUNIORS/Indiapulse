@@ -1,3 +1,0 @@
-Symbol,Name,Category,Provider,Frequency,Unit,Source,Priority,Active,Remarks
-USDINR,USD/INR,FX,RBI,Daily,Rate,RBI,6,True,
-INDIAVIX,India VIX,Volatility,NSE,Daily,Index,NSE,14,True,
