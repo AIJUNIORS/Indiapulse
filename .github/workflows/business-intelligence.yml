@@ -11,7 +11,7 @@ name: Business Calendar Validation
 # PR editing business_calendar_data.py, this workflow just confirms the
 # edit didn't break the shape business_score.py expects.
 
-on:
+"on":
   pull_request:
     paths:
       - 'backend/business_calendar_data.py'
