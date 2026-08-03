@@ -11,7 +11,7 @@ name: Refresh Daily
 # rather than silently pretending the tactical/full distinction already
 # exists.
 
-on:
+"on":
   schedule:
     - cron: '30 12 * * 1-5'   # ~18:00 IST, after NSE close, weekdays only
   workflow_dispatch: {}

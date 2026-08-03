@@ -7,7 +7,7 @@ name: Validate Sources Quarterly
 # history_years quietly aging past/under the 3yr floor) surfaces even if
 # nobody manually runs `python data_hierarchy.py` before merging.
 
-on:
+"on":
   schedule:
     - cron: '0 6 1 */3 *'   # first of the month, every 3rd month
   pull_request:

@@ -8,7 +8,7 @@ name: Refresh Weekly
 # addressable trigger once that split is built, rather than having to
 # retrofit a second workflow later.
 
-on:
+"on":
   schedule:
     - cron: '0 13 * * 6'   # Saturday, after the trading week closes
   workflow_dispatch: {}
