@@ -1,0 +1,51 @@
+name: Business Calendar Validation
+
+# NOT a content-generation workflow -- the curated Business Calendar states/
+# rationale are hand-authored judgment calls (business_calendar_data.py's
+# own module docstring), not something to regenerate on a schedule. This
+# workflow's only job is to validate the SHAPE of business_calendar_data.py
+# whenever it's touched (every category has exactly 12 states drawn from the
+# 5 known labels, 12 rationale strings, a known confidence tier) and to
+# serve as the manual trigger for the "annual Business Calendar refresh"
+# the architecture doc mentions -- which in practice means: a human opens a
+# PR editing business_calendar_data.py, this workflow just confirms the
+# edit didn't break the shape business_score.py expects.
+
+on:
+  pull_request:
+    paths:
+      - 'backend/business_calendar_data.py'
+  workflow_dispatch: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate calendar shape
+        run: |
+          python -c "
+          from backend.business_calendar_data import BUSINESS_CALENDAR as cal
+          valid_states = {'Peak','Strong','Normal','Weak','Recovery'}
+          valid_conf = {'high','medium','low'}
+          issues = []
+          for name, entry in cal.items():
+              if len(entry['states']) != 12:
+                  issues.append(f'{name}: {len(entry[\"states\"])} states, need 12')
+              if len(entry['why']) != 12:
+                  issues.append(f'{name}: {len(entry[\"why\"])} rationale strings, need 12')
+              if entry['confidence'] not in valid_conf:
+                  issues.append(f'{name}: bad confidence {entry[\"confidence\"]}')
+              bad = [s for s in entry['states'] if s not in valid_states]
+              if bad:
+                  issues.append(f'{name}: unknown state label(s) {bad}')
+          if issues:
+              print('\n'.join(issues))
+              raise SystemExit(f'{len(issues)} shape issue(s) -- fix before merging')
+          print(f'{len(cal)} categories OK')
+          "

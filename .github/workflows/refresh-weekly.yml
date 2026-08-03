@@ -1,0 +1,65 @@
+name: Refresh Weekly
+
+# Full run: Trend/Position/Cycle/Volatility/Seasonality/Structure/Opportunity,
+# all weekly-cadence per every factor module's own docstring. Same
+# pipeline.py entry point as refresh-daily.yml today (see that workflow's
+# comment on the not-yet-built tactical/full split) -- separated into its
+# own scheduled workflow now so the weekly cadence exists as a distinct,
+# addressable trigger once that split is built, rather than having to
+# retrofit a second workflow later.
+
+on:
+  schedule:
+    - cron: '0 13 * * 6'   # Saturday, after the trading week closes
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Restore price cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache
+          key: price-cache-${{ github.run_id }}
+          restore-keys: price-cache-
+
+      - name: Restore Cycle state
+        uses: actions/cache@v4
+        with:
+          path: data/state
+          key: cycle-state-${{ github.run_id }}
+          restore-keys: cycle-state-
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Refresh price cache (incremental)
+        run: python backend/price_cache.py
+
+      - name: Run pipeline
+        run: python backend/pipeline.py
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

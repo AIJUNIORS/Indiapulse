@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndiaPulse — Category Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  /* Surfaces */
+  --bg:#08090C;
+  --panel:#0F1218;
+  --panel-2:#141820;
+  --panel-3:#191E28;
+  --border:#1E2430;
+  --border-subtle:#181D27;
+
+  /* Text */
+  --text:#ECEEF2;
+  --text-dim:#8A93A8;
+  --text-faint:#707A8C;
+
+  /* Brand signals */
+  --structure:#4E9BD8;
+  --structure-glow:rgba(78,155,216,.12);
+  --fundamental:#C9A24A;
+  --fundamental-glow:rgba(201,162,74,.12);
+
+  /* Semantic */
+  --up:#3FB98A;
+  --up-glow:rgba(63,185,138,.12);
+  --down:#E0585F;
+  --down-glow:rgba(224,88,95,.12);
+  --warn:#D8A23D;
+  --warn-glow:rgba(216,162,61,.12);
+
+  /* Shape */
+  --radius:10px;
+  --radius-sm:7px;
+  --radius-lg:14px;
+
+  /* Shadow */
+  --shadow-card:0 1px 3px rgba(0,0,0,.35), 0 4px 16px rgba(0,0,0,.22);
+  --shadow-drawer:0 0 60px rgba(0,0,0,.6);
+
+  /* Sidebar */
+  --sidebar-w:224px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*{box-sizing:border-box; margin:0; padding:0;}
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:13.5px;
+  line-height:1.55;
+  display:flex;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:600;
+  letter-spacing:0.02em;
+}
+.mono{ font-family:'IBM Plex Mono',monospace; }
+
+/* Scrollbar */
+::-webkit-scrollbar{ width:5px; height:5px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
+::-webkit-scrollbar-thumb:hover{ background:#2A3040; }
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+#sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* Brand */
+.brand{
+  padding:22px 20px 18px;
+  border-bottom:1px solid var(--border);
+}
+.brand .display{
+  font-size:23px;
+  letter-spacing:0.03em;
+  color:var(--text);
+  line-height:1;
+}
+.brand .display span{
+  color:var(--structure);
+}
+.brand .tag{
+  font-size:10px;
+  color:var(--text-faint);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  margin-top:5px;
+}
+
+/* Nav */
+.navlist{
+  list-style:none;
+  flex:1;
+  overflow-y:auto;
+  padding:10px 0;
+}
+.navlist li{ padding:1px 10px; }
+.navlist a{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:8px 11px;
+  border-radius:var(--radius-sm);
+  color:var(--text-dim);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:400;
+  transition:background 0.12s, color 0.12s;
+  position:relative;
+}
+.navlist a:hover{
+  background:var(--panel-2);
+  color:var(--text);
+}
+.navlist a.active{
+  background:rgba(78,155,216,.1);
+  color:var(--structure);
+  font-weight:500;
+}
+.navlist a.active::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  width:2.5px;
+  height:16px;
+  background:var(--structure);
+  border-radius:0 2px 2px 0;
+}
+.navlist .icon{
+  width:18px;
+  text-align:center;
+  flex-shrink:0;
+  opacity:.7;
+  font-size:13px;
+}
+.navlist a.active .icon{ opacity:1; }
+.navlist .count{
+  margin-left:auto;
+  font-size:10.5px;
+  color:var(--text-faint);
+  font-family:'IBM Plex Mono',monospace;
+  background:var(--panel-2);
+  padding:1px 6px;
+  border-radius:99px;
+  border:1px solid var(--border);
+}
+.navlist a.active .count{
+  background:rgba(78,155,216,.1);
+  border-color:rgba(78,155,216,.25);
+  color:var(--structure);
+}
+
+.nav-section-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.09em;
+  color:var(--text-faint);
+  padding:14px 20px 5px;
+  font-weight:600;
+}
+
+.sidebar-foot{
+  padding:14px 20px;
+  border-top:1px solid var(--border);
+  font-size:10.5px;
+  color:var(--text-faint);
+  line-height:1.6;
+}
+.sidebar-foot .refresh-dot{
+  display:inline-block;
+  width:6px; height:6px;
+  background:var(--up);
+  border-radius:50%;
+  margin-right:5px;
+  vertical-align:middle;
+  animation:pulse 2s infinite;
+}
+
+/* ============================================================
+   MAIN AREA
+   ============================================================ */
+#main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Topbar */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(8,9,12,.88);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:12px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.topbar-left{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+}
+.crumb{
+  color:var(--text-faint);
+  font-size:12.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.crumb b{ color:var(--text); font-weight:600; }
+.crumb-sep{ color:var(--border); }
+#refreshLabel{
+  font-size:11px;
+  color:var(--text-faint);
+  opacity:.8;
+}
+
+.search-wrap{
+  position:relative;
+  flex-shrink:0;
+}
+.search-wrap::before{
+  content:'⌕';
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--text-faint);
+  font-size:15px;
+  pointer-events:none;
+  line-height:1;
+}
+.search{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:7px 12px 7px 30px;
+  color:var(--text);
+  font-size:12px;
+  width:220px;
+  transition:border-color .15s;
+  font-family:inherit;
+}
+.search::placeholder{ color:var(--text-faint); }
+.search:focus{
+  outline:none;
+  border-color:rgba(78,155,216,.4);
+  box-shadow:0 0 0 3px rgba(78,155,216,.06);
+}
+
+/* Pages */
+.page{ display:none; padding:26px 28px 72px; max-width:1440px; }
+.page.active{ display:block; }
+
+/* Page head */
+.pagehead{ margin-bottom:24px; }
+.pagehead h1{ font-size:28px; letter-spacing:0.01em; }
+.pagehead p{
+  color:var(--text-dim);
+  font-size:13px;
+  margin-top:4px;
+  max-width:620px;
+  line-height:1.6;
+}
+
+/* ============================================================
+   GRID SYSTEM
+   ============================================================ */
+.grid{ display:grid; gap:12px; }
+.cols-6{ grid-template-columns:repeat(6,1fr); }
+.cols-4{ grid-template-columns:repeat(4,1fr); }
+.cols-3{ grid-template-columns:repeat(3,1fr); }
+.cols-2{ grid-template-columns:repeat(2,1fr); }
+.cols-top{ grid-template-columns:2fr 1fr; align-items:start; }
+
+@media (max-width:1100px){
+  .cols-6{ grid-template-columns:repeat(3,1fr); }
+  .cols-4{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:720px){
+  .cols-3,.cols-2{ grid-template-columns:1fr; }
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+.card{
+  background:var(--panel);
+  border:1px solid #FFFFFF;
+  border-radius:var(--radius);
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow-card);
+}
+.card h3{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:var(--text-faint);
+  font-family:'Inter',sans-serif;
+  font-weight:600;
+  margin-bottom:7px;
+}
+
+/* Section title */
+.section-title{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin:32px 0 10px;
+}
+.section-title h2{
+  font-size:18px;
+  letter-spacing:0.01em;
+}
+.section-title .sub{
+  font-size:11.5px;
+  color:var(--text-faint);
+}
+.section-title:first-child{ margin-top:0; }
+
+/* Hero card */
+.hero-card .val{
+  font-size:26px;
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:500;
+  margin-top:2px;
+  letter-spacing:-0.02em;
+}
+.hero-card .delta.up{ color:var(--up); }
+.hero-card .delta.down{ color:var(--down); }
+.hero-card .delta{ font-size:12px; margin-top:3px; }
+
+/* Updated pulse */
+.updated{ font-size:11px; color:var(--text-faint); margin-top:4px; }
+.updated .dot.blue{ animation:pulse 2s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+/* ============================================================
+   PILLS
+   ============================================================ */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10px;
+  padding:2px 9px;
+  border-radius:99px;
+  font-weight:600;
+  letter-spacing:.04em;
+  font-family:'Inter',sans-serif;
+}
+.pill.structure{
+  background:var(--structure-glow);
+  color:var(--structure);
+  border:1px solid rgba(78,155,216,.25);
+}
+.pill.fundamental{
+  background:var(--fundamental-glow);
+  color:var(--fundamental);
+  border:1px solid rgba(201,162,74,.25);
+}
+.pill.context{
+  background:rgba(138,146,161,.1);
+  color:var(--text-dim);
+  border:1px solid var(--border);
+}
+
+/* Stars */
+.stars{ color:var(--fundamental); letter-spacing:2px; font-size:13px; }
+.stars .off{ color:#2C3240; }
+
+/* ============================================================
+   ALMANAC / CALENDAR
+   ============================================================ */
+.almanac-wrap{ overflow-x:auto; }
+table.almanac{
+  border-collapse:collapse;
+  width:100%;
+  font-size:12px;
+}
+table.almanac th{
+  text-align:left;
+  padding:7px 8px;
+  color:var(--text-faint);
+  font-weight:600;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  border-bottom:1px solid var(--border);
+}
+table.almanac td{
+  padding:5px 7px;
+  text-align:center;
+  border-bottom:1px solid var(--border-subtle);
+  white-space:nowrap;
+}
+table.almanac tr:last-child td{ border-bottom:none; }
+table.almanac td.rowlabel{
+  text-align:left;
+  color:var(--text);
+  font-weight:500;
+}
+.cal-cell{
+  width:22px; height:22px;
+  border-radius:4px;
+  display:inline-block;
+}
+.cal-cell.green{ background:rgba(63,185,138,.5); }
+.cal-cell.neutral{ background:#1E2430; }
+.cal-cell.red{ background:rgba(224,88,95,.5); }
+
+/* ============================================================
+   CATEGORY CARDS
+   ============================================================ */
+.cat-card{
+  cursor:pointer;
+  transition:border-color .15s, transform .12s, box-shadow .15s;
+}
+.cat-card:hover{
+  border-color:rgba(78,155,216,.4);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(0,0,0,.35), 0 0 0 1px rgba(78,155,216,.08);
+}
+.cat-card .toprow{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.cat-card .name{
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--text);
+}
+.cat-card .src{
+  font-size:10.5px;
+  color:var(--text-faint);
+  font-family:'IBM Plex Mono',monospace;
+  margin-top:3px;
+}
+
+/* Score bar */
+.scorebar{
+  height:3px;
+  background:var(--panel-2);
+  border-radius:99px;
+  margin-top:5px;
+  overflow:hidden;
+}
+.scorebar > div{
+  height:100%;
+  border-radius:99px;
+  transition:width .3s ease;
+}
+
+/* Metrics row */
+.metrics-row{
+  display:flex;
+  gap:14px;
+  margin-top:12px;
+  font-size:11.5px;
+}
+.metrics-row .m{ flex:1; }
+.metrics-row .m .lbl{
+  color:var(--text-faint);
+  font-size:9.5px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  font-weight:600;
+}
+.metrics-row .m .v{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13.5px;
+  margin-top:2px;
+  font-weight:500;
+}
+.opp-score-badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:22px;
+  font-weight:600;
+  letter-spacing:-0.03em;
+}
+
+/* ============================================================
+   GROUP PAGE
+   ============================================================ */
+.ghero{
+  display:flex;
+  align-items:center;
+  gap:28px;
+  flex-wrap:wrap;
+}
+.ghero .gstat{ min-width:90px; }
+.ghero .gstat .lbl{
+  font-size:10px;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  letter-spacing:.06em;
+  font-weight:600;
+}
+.ghero .gstat .v{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:22px;
+  font-weight:600;
+  margin-top:3px;
+}
+.gnarrative{
+  font-size:13.5px;
+  color:var(--text-dim);
+  line-height:1.7;
+  max-width:800px;
+}
+
+/* Highlight row */
+.highlight-row{
+  display:flex;
+  gap:0;
+  flex-wrap:wrap;
+}
+.hl-item{
+  flex:1;
+  min-width:140px;
+  padding:13px 16px;
+  border-right:1px solid var(--border);
+}
+.hl-item:last-child{ border-right:none; }
+.hl-item .lbl{
+  font-size:9.5px;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  letter-spacing:.06em;
+  font-weight:600;
+}
+.hl-item .nm{
+  font-size:14px;
+  font-weight:600;
+  margin-top:4px;
+  cursor:pointer;
+  transition:color .12s;
+}
+.hl-item .nm:hover{ color:var(--structure); }
+
+/* Heat cells */
+.heat-cell{
+  width:24px;
+  height:16px;
+  border-radius:3px;
+  margin:0 auto;
+}
+.heat-cell.h1{ background:rgba(224,88,95,.55); }
+.heat-cell.h2{ background:rgba(216,162,61,.4); }
+.heat-cell.h3{ background:rgba(100,110,130,.35); }
+.heat-cell.h4{ background:rgba(201,162,74,.65); }
+.heat-cell.h5{ background:rgba(63,185,138,.75); }
+
+/* Rotation flow */
+.rotation-flow{
+  display:flex;
+  justify-content:space-between;
+  font-size:10.5px;
+  color:var(--text-faint);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:10px;
+}
+.rotation-map{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+@media (max-width:1000px){ .rotation-map{ grid-template-columns:1fr; } }
+
+.rcol{
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  border-top:2.5px solid var(--stage-color, var(--border));
+  background:var(--stage-bg, var(--panel-2));
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  min-height:120px;
+  min-width:0;
+}
+.rcol .rc-label{
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.rcol .rc-desc{
+  font-size:10px;
+  color:var(--text-faint);
+  margin:3px 0 9px;
+}
+.rcol .rc-meta{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:var(--text-faint);
+  margin-bottom:8px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* Rotation legend */
+.rotation-legend{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+  font-size:10.5px;
+  color:var(--text-dim);
+}
+.rotation-legend .lg{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.rotation-legend .dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+
+/* Rotation chip */
+.rchip{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11.5px;
+  padding:5px 8px;
+  margin-bottom:4px;
+  background:rgba(255,255,255,.03);
+  border-radius:5px;
+  cursor:pointer;
+  border:1px solid var(--border-subtle);
+  transition:border-color .12s;
+}
+.rchip:hover{ border-color:rgba(78,155,216,.3); }
+.rchip .sc{
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  font-size:11px;
+}
+
+.rotation-foot{
+  display:flex;
+  gap:24px;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+  font-size:12px;
+}
+.rotation-foot .rf-col b{
+  display:block;
+  font-size:10px;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  margin-bottom:7px;
+  letter-spacing:.05em;
+  font-weight:700;
+}
+
+/* Mini card */
+.mini-card{
+  padding:13px;
+  cursor:pointer;
+  transition:border-color .12s, transform .1s;
+}
+.mini-card:hover{
+  border-color:rgba(78,155,216,.35);
+  transform:translateY(-1px);
+}
+.mini-card .nm{ font-weight:600; font-size:13px; }
+.mini-card .ph{ font-size:11px; color:var(--text-faint); margin:4px 0; }
+.mini-card .bot{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:5px;
+}
+
+/* Group head (collapsible) */
+.grouphead{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  margin-top:12px;
+  font-size:13px;
+  font-weight:600;
+  transition:border-color .12s;
+}
+.grouphead:hover{ border-color:rgba(78,155,216,.25); }
+.grouphead:first-of-type{ margin-top:0; }
+.grouphead .car{
+  transition:transform .15s;
+  color:var(--text-faint);
+  font-size:10px;
+}
+.grouphead.collapsed .car{ transform:rotate(-90deg); }
+.grouphead .n{
+  margin-left:auto;
+  color:var(--text-faint);
+  font-weight:400;
+  font-size:11px;
+}
+
+/* Master table */
+table.master{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12.5px;
+  margin-bottom:2px;
+}
+table.master.collapsed{ display:none; }
+table.master th{
+  text-align:left;
+  padding:8px 10px;
+  color:var(--text-faint);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  border-bottom:1px solid var(--border);
+  font-weight:600;
+}
+table.master td{
+  padding:7px 10px;
+  border-bottom:1px solid var(--border-subtle);
+  white-space:nowrap;
+}
+table.master tr:last-child td{ border-bottom:none; }
+table.master tr:hover td{
+  background:var(--panel-2);
+  cursor:pointer;
+}
+
+/* Arrows */
+.arrow{ font-weight:700; font-size:14px; }
+.arrow.up{ color:var(--up); }
+.arrow.upright{ color:var(--up); }
+.arrow.side{ color:var(--text-dim); }
+.arrow.downright{ color:var(--down); }
+.arrow.down{ color:var(--down); }
+
+/* Structure pills */
+.struct-pill{
+  font-size:10.5px;
+  padding:2px 9px;
+  border-radius:99px;
+  font-weight:600;
+  font-family:'Inter',sans-serif;
+}
+.struct-pill.strongbull{ background:rgba(63,185,138,.15); color:var(--up); }
+.struct-pill.bull{ background:rgba(63,185,138,.09); color:var(--up); }
+.struct-pill.neutral{ background:#1A2030; color:var(--text-dim); }
+.struct-pill.weak{ background:rgba(216,162,61,.1); color:var(--warn); }
+.struct-pill.oversold{ background:var(--structure-glow); color:var(--structure); }
+.struct-pill.overbought{ background:var(--down-glow); color:var(--down); }
+
+/* Exhaustion pills */
+.exh-pill{
+  font-size:10.5px;
+  padding:2px 9px;
+  border-radius:99px;
+  font-weight:600;
+  font-family:'Inter',sans-serif;
+}
+.exh-pill.none{ background:#1A2030; color:var(--text-faint); }
+.exh-pill.early{ background:rgba(216,162,61,.1); color:var(--warn); }
+.exh-pill.moderate{ background:rgba(216,162,61,.16); color:var(--warn); }
+.exh-pill.high{ background:rgba(224,88,95,.14); color:var(--down); }
+
+/* Generic dot */
+.dot{
+  display:inline-block;
+  width:6px; height:6px;
+  border-radius:50%;
+  margin-right:5px;
+  vertical-align:middle;
+}
+.dot.green{ background:var(--up); }
+.dot.yellow{ background:var(--warn); }
+.dot.red{ background:var(--down); }
+.dot.blue{ background:var(--structure); }
+
+/* Weekly changes */
+.weekly-list{ display:flex; flex-direction:column; }
+.weekly-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 6px;
+  border-bottom:1px solid var(--border-subtle);
+  font-size:12.5px;
+  transition:background .1s;
+}
+.weekly-row:last-child{ border:none; }
+.weekly-row:hover{ background:rgba(255,255,255,.02); }
+.weekly-row .tag{
+  font-size:9.5px;
+  padding:2px 8px;
+  border-radius:99px;
+  font-weight:700;
+  letter-spacing:.04em;
+  flex-shrink:0;
+}
+.weekly-row .tag.new{
+  background:rgba(78,155,216,.12);
+  color:var(--structure);
+  border:1px solid rgba(78,155,216,.2);
+}
+.weekly-row .tag.flip{
+  background:var(--warn-glow);
+  color:var(--warn);
+  border:1px solid rgba(216,162,61,.2);
+}
+
+/* ============================================================
+   ALLOCATION MATRIX
+   ============================================================ */
+.matrix-wrap{ overflow-x:auto; }
+table.journey{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+table.journey th{
+  padding:9px 10px;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--text);
+  text-align:left;
+  border-bottom:1px solid #E2E5EA;
+  font-weight:600;
+}
+table.journey th.rowhead{ width:110px; }
+table.journey td{
+  vertical-align:top;
+  padding:8px;
+  border:1px solid #E2E5EA;
+  background:#FFFFFF;
+}
+table.journey td.rowhead{
+  background:transparent;
+  border:none;
+  font-size:12px;
+  font-weight:600;
+  color:var(--text);
+  padding-top:14px;
+}
+table.journey td.prime{
+  background:#EAF7F1;
+  border-color:#B7E4CE;
+}
+table.journey td.risk{
+  background:#FBEBEC;
+  border-color:#F0BEC2;
+}
+.jchip{
+  display:inline-block;
+  font-size:11px;
+  padding:3px 9px;
+  margin:2px 2px 0 0;
+  border-radius:5px;
+  background:var(--panel-3);
+  border:1px solid var(--border);
+  cursor:pointer;
+  color:var(--text-dim);
+  transition:border-color .12s, color .12s, background .12s;
+}
+.jchip:hover{ border-color:rgba(78,155,216,.5); color:var(--text); background:var(--structure-glow); }
+table.journey .jchip{
+  background:#F1F3F6;
+  border-color:#DADEE5;
+  color:#3A4152;
+}
+table.journey .jchip:hover{ border-color:#4E9BD8; color:#1B2430; background:#E4F0FA; }
+table.journey .jempty{ color:#9AA1AE; }
+.jempty{ color:var(--text-faint); font-size:11px; }
+.jcorner{
+  font-size:9px;
+  color:var(--text);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  padding:8px 10px;
+}
+
+/* ============================================================
+   RANKING LISTS
+   ============================================================ */
+.ranklist{ display:flex; flex-direction:column; }
+.rankrow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 4px;
+  border-bottom:1px solid var(--border-subtle);
+  font-size:13px;
+  transition:background .1s;
+}
+.rankrow:last-child{ border-bottom:none; }
+.rankrow:hover{ background:rgba(255,255,255,.015); cursor:pointer; }
+.rankrow .rk{
+  width:18px;
+  color:var(--text-faint);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  flex-shrink:0;
+}
+.rankrow .nm{ flex:1; font-weight:500; }
+.rankrow .grp{ color:var(--text-faint); font-size:11px; }
+.rankrow .sc{
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  width:36px;
+  text-align:right;
+}
+
+/* ============================================================
+   DATA EXPLORER
+   ============================================================ */
+.explorer-toolbar{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+select, input.filter{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:var(--radius-sm);
+  padding:7px 10px;
+  font-size:12px;
+  font-family:inherit;
+  transition:border-color .12s;
+}
+select:focus, input.filter:focus{
+  outline:none;
+  border-color:rgba(78,155,216,.35);
+}
+select option{ background:var(--panel-2); }
+
+table.explorer{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12.5px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow-card);
+}
+table.explorer th{
+  text-align:left;
+  padding:10px 12px;
+  background:var(--panel-2);
+  color:var(--text-dim);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  cursor:pointer;
+  user-select:none;
+  border-bottom:1px dotted #FFFFFF;
+  border-right:1px dotted #FFFFFF;
+  font-weight:600;
+  transition:color .12s;
+}
+table.explorer th:last-child{ border-right:none; }
+table.explorer th:hover{ color:var(--text); }
+table.explorer td{
+  padding:9px 12px;
+  border-bottom:1px dotted #FFFFFF;
+  border-right:1px dotted #FFFFFF;
+}
+table.explorer td:last-child{ border-right:none; }
+table.explorer tr:last-child td{ border-bottom:none; }
+table.explorer tr:hover td{
+  background:var(--panel-2);
+  cursor:pointer;
+}
+
+.badge-conf{
+  font-size:10px;
+  padding:2px 8px;
+  border-radius:99px;
+  font-weight:600;
+}
+.badge-conf.high{
+  background:rgba(63,185,138,.1);
+  color:var(--up);
+}
+.badge-conf.med{
+  background:var(--warn-glow);
+  color:var(--warn);
+}
+
+/* ============================================================
+   DETAIL DRAWER
+   ============================================================ */
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(2px);
+  display:none;
+  z-index:100;
+}
+#overlay.open{ display:block; }
+#drawer{
+  position:fixed;
+  top:0;
+  right:-500px;
+  width:468px;
+  height:100vh;
+  background:var(--panel);
+  border-left:1px solid var(--border);
+  z-index:101;
+  transition:right .22s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+  padding:28px 26px;
+  box-shadow:var(--shadow-drawer);
+}
+#drawer.open{ right:0; }
+
+.drawer-close{
+  position:absolute;
+  top:20px;
+  right:22px;
+  cursor:pointer;
+  color:var(--text-faint);
+  font-size:18px;
+  width:28px; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  transition:color .12s, border-color .12s;
+}
+.drawer-close:hover{ color:var(--text); border-color:rgba(78,155,216,.3); }
+
+.factor-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid var(--border-subtle);
+}
+.factor-row:last-child{ border:none; }
+.factor-row .fname{ font-size:12.5px; color:var(--text-dim); }
+.factor-row .fval{ font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:12.5px; }
+
+.explain-list{ list-style:none; margin-top:7px; }
+.explain-list li{
+  font-size:12.5px;
+  color:var(--text-dim);
+  padding:5px 0 5px 18px;
+  position:relative;
+  line-height:1.6;
+}
+.explain-list li::before{
+  content:'—';
+  position:absolute;
+  left:0;
+  color:var(--text-faint);
+}
+
+.decision-tag{
+  display:inline-block;
+  padding:5px 14px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:600;
+  margin-top:5px;
+}
+
+/* Drawer section label */
+.drawer-section-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  margin-bottom:7px;
+  font-weight:700;
+  font-family:'Inter',sans-serif;
+}
+
+/* ============================================================
+   FOOTNOTE
+   ============================================================ */
+.footnote{
+  font-size:11px;
+  color:var(--text-faint);
+  margin-top:20px;
+  border-top:1px solid var(--border-subtle);
+  padding-top:12px;
+  line-height:1.7;
+}
+.footnote a{ color:var(--structure); text-decoration:none; }
+.footnote a:hover{ text-decoration:underline; }
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+.divider{
+  height:1px;
+  background:var(--border);
+  margin:28px 0;
+}
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="brand">
+    <div class="display">India<span>Pulse</span></div>
+    <div class="tag">Category Intelligence Platform</div>
+  </div>
+  <ul class="navlist" id="navlist"></ul>
+  <div class="sidebar-foot">
+    <span class="refresh-dot"></span>Weekly refresh active<br>
+    Data: weekly (full) · Tactical: daily
+  </div>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="crumb" id="crumb">IndiaPulse / <b>Summary</b> <span id="refreshLabel"></span></div>
+    </div>
+    <div class="search-wrap">
+      <input class="search" id="globalSearch" placeholder="Search 71 categories…">
+    </div>
+  </div>
+  <div id="pages"></div>
+</div>
+
+<div id="overlay" onclick="closeDrawer()"></div>
+<div id="drawer"></div>
+
+<script>
+/* ============================================================
+   DATA LAYER — mock now, wire to backend/data/cache/*.json later.
+   Each category record is the exact shape pipeline.py should emit.
+   ============================================================ */
+const GROUPS = [
+  {id:'summary', label:'Summary', icon:'🏠'},
+  {id:'broad-market', label:'Broad Market', icon:'📈'},
+  {id:'market-cap', label:'Market Cap', icon:'📊'},
+  {id:'sector', label:'Sector', icon:'🏦'},
+  {id:'theme', label:'Theme', icon:'🎯'},
+  {id:'strategy', label:'Strategy', icon:'⚙'},
+  {id:'commodities', label:'Commodities', icon:'🛢'},
+  {id:'global-markets', label:'Global Markets', icon:'🌍'},
+  {id:'emerging', label:'Emerging Opportunities', icon:'🚀'},
+  {id:'explorer', label:'Data Explorer', icon:'📚'},
+];
+
+// [group, category, sourceType, source, historyYears, contextOnly?]
+const RAW = [
+['broad-market','Nifty 50','ETF','NIFTYBEES.NS',17.6],
+['broad-market','Nifty Next 50','ETF','JUNIORBEES.NS',17.6],
+['broad-market','Nifty 100','ETF','NIF100BEES.NS',13.3],
+['broad-market','Nifty 500','Index','^CRSLDX',20.8],
+['broad-market','Sensex','ETF','HDFCSENSEX.NS',8.2],
+['broad-market','BSE 500','ETF','HDFCBSE500.NS',3.4],
+['broad-market','India VIX','Index','^INDIAVIX',18.4,'context'],
+['broad-market','USD/INR','FX','INR=X',22.7,'currency'],
+['broad-market','Large & Mid Cap','Index','^NIFTY_LARGEMID250',18.9],
+['market-cap','Large Cap','ETF','NIFTYBEES.NS',17.6],
+['market-cap','Mid Cap','ETF','MOM100.NS',15.5],
+['market-cap','Small Cap','ETF','HDFCSML250.NS',3.4],
+['market-cap','Micro Cap','Index','^NIFTY_MICROCAP250',15.2],
+['sector','Banking','ETF','BANKBEES.NS',17.6],
+['sector','Private Banks','ETF','PVTBANIETF.NS',7.0],
+['sector','PSU Banks','ETF','PSUBNKBEES.NS',17.6],
+['sector','Financial Services','Composite','5-stock composite',24.1],
+['sector','Information Technology','ETF','ITBEES.NS',6.1],
+['sector','Pharma','ETF','PHARMABEES.NS',5.1],
+['sector','Healthcare','ETF','MOHEALTH.NS',4.0],
+['sector','FMCG','ETF','FMCGIETF.NS',5.0],
+['sector','Auto','ETF','AUTOBEES.NS',4.5],
+['sector','Infrastructure','ETF','INFRABEES.NS',15.8],
+['sector','Metals','Index','^CNXMETAL',15.0],
+['sector','Energy','Index','^CNXENERGY',15.5],
+['sector','Oil & Gas','Composite','5-stock composite',29.3],
+['sector','Power','Composite','5-stock composite',16.6],
+['sector','Realty','Index','^CNXREALTY',16.0],
+['sector','Telecom','Composite','3-stock composite',24.1],
+['sector','Manufacturing','Composite','5-stock composite',24.1],
+['theme','Defence','Composite','5-stock composite',5.8],
+['theme','PSU','Composite','5-stock composite',15.7],
+['theme','CPSE','ETF','CPSEETF.NS',12.3],
+['theme','Bharat 22','ETF','ICICIB22.NS',6.6],
+['theme','Digital India','ETF','TNIDETF.NS',4.3],
+['theme','ESG','Composite','5-stock composite',24.0],
+['theme','Tourism','Composite','5-stock composite',6.8],
+['theme','Innovation','Composite','TCS/INFY/WIPRO/HCLTECH',24.1],
+['theme','Consumption','ETF','CONSUMBEES.NS',12.3],
+['theme','Capital Markets','Composite','5-stock composite',5.8],
+['strategy','Quality','ETF','NIFTYQLITY.NS',3.9],
+['strategy','Value','ETF','NV20BEES.NS',11.1],
+['strategy','Alpha','ETF','ALPHA.NS',4.6],
+['strategy','Low Volatility','ETF','LOWVOLIETF.NS',8.2],
+['strategy','Alpha Low Volatility','ETF','ALPL30IETF.NS',5.9],
+['strategy','Momentum','Index','^NIFTY200_MOMENTUM30',15.2],
+['strategy','Momentum Quality','ETF Proxy','MOM30IETF.NS',6.2],
+['commodities','Gold','ETF','GOLDBEES.NS',17.6],
+['commodities','Silver','ETF','SILVERBEES.NS',4.5],
+['commodities','Copper','Futures','HG=F',25.9],
+['commodities','Crude Oil','Futures','CL=F',25.9],
+['commodities','Natural Gas','Futures','NG=F',25.9],
+['global-markets','Euro Stoxx 50','Index','^STOXX50E',19.3],
+['global-markets','Nikkei 225','Index','^N225',61.6],
+['global-markets','CSI 300','Index','000300.SS',5.4],
+['global-markets','Hang Seng','ETF','HNGSNGBEES.NS',16.4],
+['global-markets','Taiwan (TAIEX)','Index','^TWII',29.1],
+['global-markets','South Korea (KOSPI)','Index','^KS11',29.6],
+['global-markets','Indonesia (IDX)','Index','^JKSE',36.3],
+['global-markets','Thailand (SET)','Index','^SET.BK',29.6],
+['global-markets','Middle East (Tadawul)','Index','^TASI.SR',27.8],
+['global-markets','Brazil (Bovespa)','Index','^BVSP',33.3],
+['global-markets','Vietnam','Composite','VNM/EIB.HM/SSI.HM',19.5],
+['global-markets','Mexico (S&P/BMV IPC)','Index','^MXX',34.7],
+['global-markets','Africa (FTSE/JSE Top 40)','Index','^J200.JO',31.1],
+['emerging','Cement','ETF','CEMNTGROWW.NS',1.1],
+['emerging','Railways','ETF','GROWWRAIL.NS',1.1],
+['emerging','EV Ecosystem','ETF','EVIETF.NS',2.1],
+['emerging','Chemicals','ETF','CHEMICAL.NS',3.1],
+['emerging','Insurance','ETF','ECAPINSURE.NS',3.4],
+['emerging','Logistics','ETF','INFRA.NS',3.4],
+];
+
+// Deterministic pseudo-random (stable across reloads) so the mock reads consistently.
+function seedRand(str){
+  let h=0; for(let i=0;i<str.length;i++){h=(h<<5)-h+str.charCodeAt(i); h|=0;}
+  return function(){ h=(h*1103515245+12345)&0x7fffffff; return (h%1000)/1000; };
+}
+const TRENDS=['Strong Bear','Bear','Sideways','Bull','Strong Bull'];
+const CYCLES=['Bear','Distribution','Recovery','Accumulation','Early Bull','Bull','Late Bull'];
+const VOLS=['Low','Moderate','Elevated','High'];
+const SEASONS=['Peak','Strong','Normal','Weak','Recovery'];
+const STRUCT_LABELS=[['Oversold','oversold'],['Weak','weak'],['Neutral','neutral'],['Bull','bull'],['Strong Bull','strongbull'],['Overbought','overbought']];
+const EXH_LEVELS=[['None','none'],['Early','early'],['Moderate','moderate'],['High','high']];
+const ARROWS=[['↓','down'],['↘','downright'],['→','side'],['↗','upright'],['↑','up']];
+const ACCEL=[['↓ Decelerating','down'],['→ Stable','side'],['↑ Accelerating','up']];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LOOKBACKS=[1,3,5,10,20,'Max'];
+// Layer 2: Business Intelligence — curated, static, NOT price-derived. Draft v0.2, training-knowledge only, confidence-graded.
+// Categories not covered here (Broad Market, Market Cap, Strategy, Global Markets, Innovation, Logistics) fall back to '—' — genuinely out of scope, not a data gap.
+const BUSINESS_CALENDAR = {
+  'Banking':            {states:['Strong','Strong','Peak','Normal','Normal','Weak','Weak','Recovery','Recovery','Strong','Strong','Strong'], confidence:'high',
+    why:['Budget-linked rate positioning by lenders','Pre-Budget credit demand firms up','FY-end quarter-end credit push','Post FY-end, steady baseline lending','Steady credit growth, no major catalyst','Pre-monsoon loan demand lull','Monsoon slows retail credit uptake','Credit demand rebuilding post-monsoon','Pre-festive credit demand improving','Festive personal & auto loan demand','Festive lending season continues','Wedding-season personal loan demand']},
+  'Private Banks':      {states:['Strong','Strong','Peak','Normal','Normal','Weak','Weak','Recovery','Recovery','Strong','Strong','Strong'], confidence:'high',
+    why:['Budget-linked rate positioning by lenders','Pre-Budget credit demand firms up','FY-end quarter-end credit push','Post FY-end, steady baseline lending','Steady credit growth, no major catalyst','Pre-monsoon loan demand lull','Monsoon slows retail credit uptake','Credit demand rebuilding post-monsoon','Pre-festive credit demand improving','Festive personal & auto loan demand','Festive lending season continues','Wedding-season personal loan demand']},
+  'PSU Banks':          {states:['Recovery','Strong','Strong','Normal','Normal','Weak','Weak','Weak','Recovery','Recovery','Normal','Normal'], confidence:'medium',
+    why:['Demand picks up ahead of Budget','Budget recap/divestment news lifts sentiment','FY-end priority-sector lending push','Post FY-end, steady baseline','No major catalyst this month','Pre-monsoon lending slowdown','Monsoon dampens credit offtake','Continued monsoon-related lull','Pre-festive credit demand improving','Early festive lending pickup','Festive demand normalizes','Steady year-end lending activity']},
+  'Financial Services': {states:['Strong','Strong','Peak','Weak','Weak','Normal','Normal','Normal','Recovery','Strong','Strong','Strong'], confidence:'high',
+    why:['80C tax-saving inflows begin','Tax-saving season builds momentum','80C deadline rush, FY-end MF flows','Post tax-season lull','Seasonal trough, no major inflows','Steady baseline activity','No major catalyst this month','Steady flows, pre-festive positioning','Festive-linked flows start improving','Festive FII inflows pick up','Continued festive-season flows','Year-end FII/FPI positioning']},
+  'Capital Markets':    {states:['Strong','Normal','Strong','Weak','Weak','Normal','Normal','Recovery','Recovery','Strong','Strong','Peak'], confidence:'medium',
+    why:['New-year IPO pipeline activity','Steady baseline trading activity','FY-end mutual fund flow push','Post FY-end volume lull','Seasonal trading lull','No major catalyst this month','Steady baseline activity','Volumes start rebuilding','Pre-festive activity improving','Festive-season trading pickup','Continued strong trading volumes','Year-end IPO/rally activity peaks']},
+  'Information Technology': {states:['Strong','Normal','Normal','Weak','Weak','Recovery','Recovery','Normal','Normal','Strong','Strong','Peak'], confidence:'high',
+    why:['Q4 results/guidance set tone','Steady baseline, no major catalyst','FY-end, steady execution','New fiscal-year client budget uncertainty','Client budget cycles still settling','Client spending starts firming up','Q1 results improve visibility','Steady baseline activity','No major catalyst this month','US client budget planning ramps up','Deal pipeline builds into year-end','US client CY-end budget flush']},
+  'Pharma':             {states:['Normal','Normal','Normal','Recovery','Normal','Normal','Strong','Strong','Normal','Normal','Normal','Normal'], confidence:'medium',
+    why:['Steady, largely non-seasonal demand','Steady, largely non-seasonal demand','Steady, largely non-seasonal demand','Early pre-monsoon stocking begins','Steady baseline demand','Steady baseline demand','Monsoon-linked acute illness demand rises','Continued monsoon illness-driven demand','Demand normalizes, defensive baseline','Demand normalizes, defensive baseline','Demand normalizes, defensive baseline','Demand normalizes, defensive baseline']},
+  'Healthcare':         {states:['Normal','Normal','Normal','Normal','Weak','Recovery','Strong','Strong','Normal','Normal','Normal','Normal'], confidence:'medium',
+    why:['Steady, largely non-seasonal demand','Steady, largely non-seasonal demand','Steady, largely non-seasonal demand','Steady, largely non-seasonal demand','Pre-monsoon seasonal lull','Admissions start picking up','Monsoon illness/hospital admission bump','Continued monsoon-linked admissions','Demand normalizes, defensive baseline','Demand normalizes, defensive baseline','Demand normalizes, defensive baseline','Demand normalizes, defensive baseline']},
+  'FMCG':               {states:['Normal','Normal','Weak','Weak','Recovery','Recovery','Normal','Strong','Strong','Peak','Peak','Strong'], confidence:'high',
+    why:['Steady baseline consumption','Steady baseline, no major catalyst','Post-holiday, pre-summer lull','Summer heat softens footfall','Pre-monsoon stocking begins','Demand starts rebuilding','Steady monsoon-season baseline','Pre-festive stocking ramps up','Festive inventory build continues','Diwali festive demand peaks','Post-Diwali & wedding season demand','Wedding-season consumption remains elevated']},
+  'Consumption':        {states:['Normal','Normal','Weak','Weak','Recovery','Recovery','Normal','Strong','Strong','Peak','Peak','Strong'], confidence:'high',
+    why:['Steady baseline consumption','Steady baseline, no major catalyst','Post-holiday, pre-summer lull','Summer heat softens footfall','Pre-monsoon stocking begins','Demand starts rebuilding','Steady monsoon-season baseline','Pre-festive stocking ramps up','Festive inventory build continues','Diwali festive demand peaks','Post-Diwali & wedding season demand','Wedding-season consumption remains elevated']},
+  'Auto':               {states:['Recovery','Normal','Normal','Weak','Weak','Weak','Recovery','Recovery','Strong','Peak','Peak','Strong'], confidence:'high',
+    why:['New-year model launches lift footfall','Steady baseline sales','FY-end dealer stocking, steady demand','Post FY-end sales lull','Summer heat softens showroom footfall','Monsoon rural-demand uncertainty','Rural sentiment starts improving','Pre-festive bookings pick up','Navratri auspicious-buying demand','Festive Diwali sales peak','Continued festive & wedding-season demand','Wedding-season bookings remain elevated']},
+  'Infrastructure':     {states:['Strong','Strong','Peak','Normal','Normal','Weak','Weak','Weak','Recovery','Recovery','Normal','Normal'], confidence:'medium',
+    why:['Pre-Budget capex positioning','Union Budget infra allocation lifts orders','FY-end execution push on order books','Post FY-end, steady execution','Steady baseline execution','Monsoon halts construction activity','Continued monsoon construction halt','Monsoon-related execution delays persist','Post-monsoon execution resumes','Site activity continues rebuilding','Steady baseline execution','Steady year-end execution']},
+  'Metals':             {states:['Normal','Recovery','Strong','Strong','Normal','Weak','Weak','Recovery','Normal','Normal','Recovery','Normal'], confidence:'low',
+    why:['Steady baseline, global-price driven','China restocking demand begins','China construction-season restocking','Continued China restocking demand','Demand normalizes post-restocking','Monsoon slows domestic construction','Continued monsoon construction slowdown','Domestic demand starts rebuilding','Steady baseline, global-price driven','Steady baseline demand','Post-monsoon construction picks up','Steady year-end baseline']},
+  'Energy':             {states:['Normal','Normal','Normal','Recovery','Strong','Strong','Normal','Normal','Normal','Normal','Recovery','Normal'], confidence:'low',
+    why:['Steady baseline demand','Steady baseline demand','Steady baseline demand','Summer cooling demand starts building','Summer power demand near its annual high','Continued summer cooling demand','Demand normalizes post-summer','Demand normalizes post-summer','Demand normalizes post-summer','Demand normalizes post-summer','Winter demand starts picking up','Steady baseline winter demand']},
+  'Oil & Gas':          {states:['Normal','Normal','Normal','Recovery','Strong','Normal','Normal','Normal','Normal','Recovery','Normal','Normal'], confidence:'low',
+    why:['Steady baseline fuel demand','Steady baseline fuel demand','Steady baseline fuel demand','Summer travel demand starts building','Summer fuel demand near its annual high','Demand normalizes post-summer','Demand normalizes post-summer','Demand normalizes post-summer','Demand normalizes post-summer','Festive-travel fuel demand ticks up','Steady baseline demand','Steady baseline demand']},
+  'Power':              {states:['Normal','Normal','Recovery','Strong','Peak','Strong','Weak','Weak','Normal','Normal','Normal','Recovery'], confidence:'medium',
+    why:['Steady baseline demand, mild winter load','Steady baseline demand','Pre-summer cooling demand builds','Summer cooling demand rises','Peak summer cooling demand','Continued elevated summer demand','Monsoon/hydro substitution cuts thermal offtake','Continued monsoon hydro substitution','Demand normalizes post-monsoon','Steady baseline demand','Steady baseline demand','Winter heating load starts building']},
+  'Realty':             {states:['Normal','Normal','Strong','Weak','Weak','Weak','Recovery','Recovery','Strong','Peak','Peak','Strong'], confidence:'high',
+    why:['Steady baseline registrations','Steady baseline registrations','FY-end stamp-duty registration rush','Post FY-end registration lull','Summer heat softens site visits','Monsoon slows site visits & bookings','Bookings start picking up','Pre-festive interest builds','Pre-Diwali auspicious buying begins','Dhanteras/Diwali auspicious buying peaks','Continued festive & wedding-season buying','Wedding-season bookings remain elevated']},
+  'Telecom':            {states:['Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Recovery','Recovery','Normal'], confidence:'low',
+    why:['Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Tariff/ARPU-driven, largely non-seasonal','Festive device & data-plan bump','Continued festive device demand','Demand normalizes post-festive']},
+  'Manufacturing':      {states:['Strong','Strong','Peak','Normal','Normal','Weak','Weak','Recovery','Recovery','Normal','Normal','Normal'], confidence:'medium',
+    why:['Pre-Budget capex positioning','Budget-linked order-book optimism','FY-end capex execution push','Post FY-end, steady execution','Post FY-end, steady execution','Monsoon disrupts logistics & output','Continued monsoon logistics disruption','Logistics & output start recovering','Production activity continues rebuilding','Steady baseline execution','Steady baseline execution','Steady baseline execution']},
+  'Chemicals':          {states:['Normal','Recovery','Strong','Strong','Normal','Strong','Peak','Strong','Normal','Recovery','Recovery','Normal'], confidence:'medium',
+    why:['Steady baseline demand','Pre-Kharif sowing prep begins','Sowing-season agrochemical demand builds','Continued pre-monsoon agrochemical demand','Demand steadies ahead of monsoon','Kharif sowing agrochemical demand rises','Peak Kharif sowing demand','Continued Kharif-season demand','Demand normalizes post-sowing','Rabi-season prep begins','Rabi sowing demand builds','Steady baseline demand']},
+  'Insurance':          {states:['Strong','Strong','Peak','Weak','Weak','Weak','Normal','Normal','Normal','Recovery','Recovery','Normal'], confidence:'high',
+    why:['80C tax-saving inflows begin','Tax-saving season builds momentum','80C deadline rush','Post tax-season lull','Seasonal trough, no major catalyst','Continued post-tax-season lull','Steady baseline policy sales','Steady baseline policy sales','Steady baseline policy sales','Festive-linked policy sales tick up','Continued festive-season sales','Demand normalizes into year-end']},
+  'Defence':            {states:['Normal','Strong','Strong','Normal','Normal','Normal','Normal','Recovery','Normal','Normal','Normal','Recovery'], confidence:'medium',
+    why:['Steady baseline, no major catalyst','Union Budget allocation lifts sentiment','FY-end contract execution push','Steady baseline order execution','Steady baseline order execution','Steady baseline order execution','Steady baseline order execution','Order pipeline starts rebuilding','Steady baseline activity','Steady baseline activity','Steady baseline activity','Year-end contract announcements build']},
+  'PSU':                {states:['Normal','Strong','Strong','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'medium',
+    why:['Steady baseline sentiment','Budget divestment/dividend news lifts sentiment','FY-end buyback announcements','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst']},
+  'CPSE':               {states:['Normal','Strong','Strong','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'medium',
+    why:['Steady baseline sentiment','Budget divestment/dividend news lifts sentiment','FY-end buyback announcements','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst']},
+  'Bharat 22':          {states:['Normal','Strong','Strong','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'medium',
+    why:['Steady baseline sentiment','Budget divestment/dividend news lifts sentiment','FY-end buyback announcements','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst','Steady baseline, no major catalyst']},
+  'Digital India':      {states:['Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Strong','Peak','Normal'], confidence:'low',
+    why:['Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Steady baseline transaction volumes','Festive e-commerce sales events lift volumes','Peak festive UPI/e-commerce surge','Volumes normalize post-festive']},
+  'ESG':                {states:['Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'low',
+    why:['Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal','Flow-driven, not meaningfully seasonal']},
+  'Tourism':            {states:['Strong','Strong','Recovery','Recovery','Strong','Weak','Weak','Weak','Recovery','Strong','Peak','Peak'], confidence:'high',
+    why:['Winter tourist season in full swing','Continued winter tourist demand','Winter season tapers off','Summer holiday bookings start building','Summer holiday travel at its secondary seasonal high','Monsoon onset dampens travel','Continued monsoon travel lull','Monsoon travel season remains soft','Post-monsoon bookings start recovering','Festive-season travel demand builds','Winter tourist season peaks','Year-end holiday travel peaks']},
+  'Gold':               {states:['Recovery','Normal','Normal','Strong','Strong','Normal','Normal','Recovery','Strong','Peak','Peak','Strong'], confidence:'high',
+    why:['Post-wedding-season demand tapers, restocking begins','Steady baseline demand','Steady baseline demand','Akshaya Tritiya buying builds','Continued Akshaya Tritiya-linked demand','Demand normalizes post-Akshaya Tritiya','Steady baseline demand','Pre-festive buying interest builds','Pre-Dhanteras stocking demand','Dhanteras — single biggest buying day','Wedding-season buying peaks','Continued wedding-season demand']},
+  'Silver':             {states:['Normal','Normal','Normal','Strong','Normal','Normal','Normal','Recovery','Strong','Peak','Peak','Strong'], confidence:'medium',
+    why:['Steady baseline, industrial + retail demand','Steady baseline demand','Steady baseline demand','Akshaya Tritiya buying builds','Demand normalizes post-Akshaya Tritiya','Steady baseline demand','Steady baseline demand','Pre-festive buying interest builds','Pre-Dhanteras stocking demand','Dhanteras festive buying peaks','Wedding-season buying peaks','Continued wedding-season demand']},
+  'Copper':             {states:['Recovery','Strong','Strong','Normal','Normal','Weak','Weak','Recovery','Normal','Normal','Recovery','Normal'], confidence:'low',
+    why:['China restocking demand begins','China construction-season restocking at its strongest','Continued China restocking demand','Demand normalizes post-restocking','Demand normalizes post-restocking','Monsoon slows domestic construction','Continued monsoon construction lull','Domestic demand starts rebuilding','Steady baseline, global-price driven','Steady baseline, global-price driven','Post-monsoon construction picks up','Steady year-end baseline']},
+  'Crude Oil':          {states:['Recovery','Normal','Normal','Recovery','Strong','Strong','Strong','Strong','Recovery','Normal','Strong','Peak'], confidence:'medium',
+    why:['Post-winter demand starts tapering','Steady baseline global demand','Steady baseline global demand','Pre-summer driving season builds','US summer driving season begins','Summer travel demand at its highest','Continued summer driving-season demand','Summer demand remains elevated','Summer season tapers off','Steady baseline, shoulder-season demand','Winter heating demand builds','Peak winter heating demand']},
+  'Natural Gas':        {states:['Peak','Strong','Weak','Weak','Weak','Recovery','Normal','Normal','Recovery','Strong','Strong','Peak'], confidence:'high',
+    why:['Peak winter heating demand','Continued elevated winter heating demand','Winter demand tapers off sharply','Shoulder-season demand trough','Continued shoulder-season lull','Early summer cooling demand builds','Steady baseline summer demand','Steady baseline summer demand','Pre-winter restocking begins','Winter-prep restocking demand rises','Early winter heating demand builds','Peak winter heating demand']},
+  'Cement':             {states:['Strong','Strong','Peak','Normal','Normal','Weak','Weak','Weak','Recovery','Recovery','Strong','Strong'], confidence:'medium',
+    why:['Pre-Budget construction activity picks up','Budget infra allocation lifts demand','FY-end construction push','Post FY-end, steady baseline demand','Post FY-end, steady baseline demand','Monsoon halts construction activity','Continued monsoon construction halt','Continued monsoon construction halt','Post-monsoon construction resumes','Site activity continues rebuilding','Post-monsoon construction demand rises','Year-end construction push continues']},
+  'Railways':           {states:['Normal','Strong','Strong','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'low',
+    why:['Steady baseline, no major catalyst','Union Budget rail capex allocation','FY-end execution push','Steady baseline execution','Steady baseline execution','Steady baseline execution','Steady baseline execution','Steady baseline execution','Steady baseline execution','Steady baseline execution','Steady baseline execution','Steady baseline execution']},
+  'EV Ecosystem':       {states:['Normal','Strong','Normal','Normal','Normal','Normal','Normal','Recovery','Strong','Peak','Strong','Normal'], confidence:'low',
+    why:['Steady baseline demand','Budget FAME/PLI announcements lift sentiment','Steady baseline demand','Steady baseline demand','Steady baseline demand','Steady baseline demand','Steady baseline demand','Pre-festive launch pipeline builds','Festive EV launches align with Auto season','Festive-season EV sales peak','Continued festive-season demand','Demand normalizes post-festive']},
+  'Innovation':         {states:['Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'low',
+    why:['No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver','No distinct seasonal driver']},
+  'Logistics':          {states:['Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal','Normal'], confidence:'low',
+    why:['No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified','No distinct seasonal driver identified']},
+};
+const BUSINESS_COLOR = {Peak:'var(--up)', Strong:'var(--fundamental)', Normal:'var(--text-dim)', Recovery:'var(--structure)', Weak:'var(--down)'};
+const BUSINESS_RANK = {Weak:0, Recovery:1, Normal:2, Strong:3, Peak:4};
+const CONF_ICON = {high:'🟢', medium:'🟡', low:'🔴'};
+// For categories with no curated business calendar (Broad Market, Market Cap, Strategy, Global Markets):
+// classify by ranking this month's mean return against the SAME category's other 11 months — a purely
+// quantitative read, kept visually distinct from the curated (fundamental) classification above, never blended.
+const STATE_LADDER = ['Weak','Recovery','Normal','Strong','Peak'];
+function computedSeasonState(group,name,lookback,historyYears,monthIdx){
+  const means = MONTHS.map((m,i)=>({i, mean: seasonStats(group,name,m,lookback,historyYears).mean}));
+  const sorted = [...means].sort((a,b)=>a.mean-b.mean);
+  const rank = sorted.findIndex(x=>x.i===monthIdx); // 0 (lowest) .. 11 (highest)
+  const bucket = Math.min(4, Math.floor(rank/12*5));
+  return STATE_LADDER[bucket];
+}
+function ordinal(n){ const s=['th','st','nd','rd']; const v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+// This month's mean return ranked against the SAME category's other 11 months (1st = highest).
+// Used as the rationale for categories with no curated driver, or where the curated read is flat/non-seasonal
+// across the year — a quantitative fallback instead of inventing a narrative the business calendar doesn't have.
+function monthReturnRank(group,name,lookback,historyYears,monthIdx){
+  const means = MONTHS.map((m,i)=>({i, mean: seasonStats(group,name,m,lookback,historyYears).mean}));
+  const sorted = [...means].sort((a,b)=>b.mean-a.mean); // 0 = highest mean
+  const rank = sorted.findIndex(x=>x.i===monthIdx)+1;
+  return `Ranks ${ordinal(rank)} of 12 by mean return`;
+}
+// A curated entry counts as "flat" (no real curated seasonal signal) if every month maps to the same state —
+// e.g. ESG, Innovation, Logistics. For these, showing the same static phrase 12 times adds nothing, so the
+// rationale column falls back to the quantitative rank instead.
+function isFlatCurated(biz){ return biz && biz.states.every(s=>s===biz.states[0]); }
+// Mock stand-in for: collect all historical [month] returns within [lookback] window, compute mean/median/positive%/stddev.
+// Replace with real computation once monthly return history is available per category.
+// Gracefully caps at whatever history actually exists — never returns N/A/error, matching how a real query would just use fewer observations.
+function seasonStats(group,name,month,lookback,historyYears){
+  return SEASONALITY_DATA[group]?.[name]?.[month]?.[lookback]
+    ?? {mean:0, median:0, positivePct:null, stdDev:null, n:0, effectiveYears:0, capped:false}; // "Insufficient History" fallback
+}
+// Real: average full calendar-year return over the lookback window, from the pre-fetched ANNUAL_DATA grid.
+function annualReturn(group,name,lookback,historyYears){
+  return ANNUAL_DATA[group]?.[name]?.[lookback] ?? 0;
+}
+
+let COMPUTED_DATA = {}, SEASONALITY_DATA = {}, ANNUAL_DATA = {};
+let CATEGORIES = [];
+
+function buildCategories(){
+  const monthIdx = new Date().getMonth();
+  CATEGORIES = RAW.map(r=>{
+    const [group,name,sourceType,source,history,flag]=r;
+    const d = COMPUTED_DATA[group]?.[name] ?? {}; // backend-computed, real -- absent/null fields render as "Insufficient History" via the interp lines below, same as before
+    const structure = d.structure ?? null;
+    const fundamental = d.fundamental ?? null;
+    const trend = d.trend ?? null;
+    const cycle = d.cycle ?? null;
+    const vol = d.vol ?? null;
+    const rsi = d.rsi ?? null;
+    const rsiInterp = rsi==null ? 'Insufficient History' : rsi>=70?'Overbought':rsi<=30?'Oversold':'Neutral';
+    const smi = d.smi ?? null;
+    const smiInterp = smi==null ? 'Insufficient History' : smi>40?'Bullish Cross':smi<-40?'Bearish Cross':'Neutral';
+    const atrPct = d.atrPct ?? null;
+    const trendPct = d.trendPct ?? null;
+    const pivotDist = d.pivotDist ?? null;
+    const pivotInterp = pivotDist==null ? 'Insufficient History' : pivotDist>8?'Above R2':pivotDist>2?'Above R1':pivotDist>=-2?'Near Pivot':pivotDist>=-8?'Above S1':'Below S1';
+    const opportunity = d.opportunity ?? null; // real structure+business+seasonality blend from opportunity_score.py -- flag==='context'/'currency' already nulled out upstream
+    // Master-table derived dimensions -- real, from the backend
+    const biz = BUSINESS_CALENDAR[name];
+    const season = biz ? biz.states[monthIdx] : computedSeasonState(group, name, 'Max', history, monthIdx); // 'Max' lookback: no per-drawer UI selection exists at boot time, matches architecture doc's fallback definition
+    const contra = d.contra ?? null;
+    const structLabel = structure==null ? 'Insufficient History' : (STRUCT_LABELS[Math.floor(structure/17)] || STRUCT_LABELS[3]);
+    const arrow = d.arrow ?? ['—','side'];       // never null -- every render site does c.arrow[0]/[1] unguarded
+    const accel = d.accel ?? ['— No Data','side'];
+    const exhaustion = d.exhaustion ?? ['—','none'];
+    const posPct = d.posPct ?? null;
+    const posInterp = posPct==null ? 'Insufficient History' : posPct>=90?'Near ATH':posPct>=65?'Upper Quartile':posPct>=35?'Middle':posPct>=15?'Lower Quartile':'Near ATL';
+    return {group,name,sourceType,source,history,flag,structure,fundamental,trend,cycle,vol,opportunity,
+            season,contra,structLabel,arrow,accel,exhaustion,posPct,posInterp,
+            rsi,rsiInterp,smi,smiInterp,atrPct,trendPct,pivotDist,pivotInterp};
+  });
+}
+
+// Unified allocation stance — single source of truth used by Drawer, Group Leaderboard, and Data Explorer
+function stanceFor(c){
+  if(c.flag==='context') return {label:'Context Instrument', color:'var(--text-dim)'};
+  if(c.flag==='currency') return {label:'Currency Context', color:'var(--text-dim)'};
+  if(c.opportunity==null) return {label:'Insufficient History', color:'var(--text-dim)'};
+  if(c.opportunity>=80) return {label:'Invest', color:'var(--up)'};
+  if(c.opportunity>=60) return {label:'Accumulate', color:'var(--up)'};
+  if(c.opportunity>=40) return (c.season==='Weak'||c.season==='Recovery') ? {label:'Enter', color:'var(--fundamental)'} : {label:'Hold', color:'var(--warn)'};
+  return {label:'Exit', color:'var(--down)'};
+}
+
+const GROUP_META = {
+  'broad-market':{label:'Broad Market', desc:'Headline indices, market-context signals (India VIX, USD/INR), and the newly-added Large & Mid Cap composite.'},
+  'market-cap':{label:'Market Cap', desc:'Segmentation of the equity universe by size — Large, Mid, Small, Micro.'},
+  'sector':{label:'Sector', desc:'Classic economic sectors with mature, ≥3yr representative instruments. Rebalanced this cycle — Innovation, Consumption and Capital Markets moved to Theme; thin-history names moved to Emerging Opportunities.'},
+  'theme':{label:'Theme', desc:'Cross-sector structural and policy themes, plus reclassified basket plays (Innovation, Consumption, Capital Markets).'},
+  'strategy':{label:'Strategy', desc:'Factor and smart-beta constructions — rotational holdings, live weights pulled at build time.'},
+  'commodities':{label:'Commodities', desc:'Precious metals via NSE ETF; industrial commodities via futures proxy pending an NSE-listed vehicle.'},
+  'global-markets':{label:'Global Markets', desc:'Ex-US indices, INR-converted by default per §2.5 FX handling. Local-currency trend shown as secondary context.'},
+  'emerging':{label:'Emerging Opportunities', desc:'Categories whose only qualifying instrument sits under the 3-year floor. Tracked, scored, but flagged as low-confidence pending more history.'},
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function refreshLabel(){
+  const now=new Date(); const day=now.getDay(); // Friday = 5
+  const last=new Date(now); last.setDate(now.getDate()-((day+2)%7)); last.setHours(20,0,0,0);
+  const next=new Date(last); next.setDate(last.getDate()+7);
+  const fmt=d=>d.toLocaleString('en-US',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+  return `Last updated: ${fmt(last)} EST (weekly full run) · next update ${fmt(next)} EST`;
+}
+const navlist = document.getElementById('navlist');
+GROUPS.forEach(g=>{
+  const count = g.id==='summary' ? '' : (g.id==='explorer' ? CATEGORIES.length : CATEGORIES.filter(c=>c.group===g.id).length);
+  navlist.insertAdjacentHTML('beforeend', `<li><a href="#${g.id}" data-nav="${g.id}"><span class="icon">${g.icon}</span> ${g.label}${count!==''?`<span class="count">${count}</span>`:''}</a></li>`);
+});
+
+function scoreColor(v){ return v>=66? 'var(--up)' : v>=40 ? 'var(--warn)' : 'var(--down)'; }
+function stars(n){ let s=''; for(let i=1;i<=5;i++) s+= i<=n?'★':'<span class="off">★</span>'; return s; }
+
+function catCard(c){
+  const oppDisplay = c.opportunity===null ? `<span class="pill ${c.flag}">${c.flag==='context'?'Context Only':'Currency Context'}</span>` : `<span class="opp-score-badge" style="color:${scoreColor(c.opportunity)}">${c.opportunity}</span>`;
+  return `
+  <div class="card cat-card" onclick="openDrawer('${c.group}','${c.name.replace(/'/g,"\\'")}')">
+    <div class="toprow">
+      <div>
+        <div class="name">${c.name}</div>
+        <div class="src">${c.sourceType} · ${c.source} · ${c.history}y</div>
+      </div>
+      ${oppDisplay}
+    </div>
+    <div class="metrics-row">
+      <div class="m"><div class="lbl">Structure</div><div class="v" style="color:${scoreColor(c.structure)}">${c.structure}</div><div class="scorebar"><div style="width:${c.structure}%;background:${scoreColor(c.structure)}"></div></div></div>
+      <div class="m"><div class="lbl">Fundamental</div><div class="v stars">${stars(c.fundamental)}</div></div>
+      <div class="m"><div class="lbl">Cycle</div><div class="v" style="font-size:12px;">${c.cycle}</div></div>
+    </div>
+  </div>`;
+}
+
+function renderSummary(){
+  const opp = CATEGORIES.filter(c=>c.opportunity!==null);
+  const nonContext = CATEGORIES.filter(c=>!c.flag);
+  const topContra = [...CATEGORIES].sort((a,b)=>b.contra-a.contra).slice(0,5);
+  const topTrend = [...nonContext].filter(c=>c.arrow[1]==='up').sort((a,b)=>b.structure-a.structure).slice(0,5)
+                    .concat([...nonContext].sort((a,b)=>b.structure-a.structure)).slice(0,5);
+  const topExhaustion = [...CATEGORIES].sort((a,b)=>b.exhaustion[0].localeCompare(a.exhaustion[0])||b.structure-a.structure)
+                    .filter(c=>c.exhaustion[1]==='high').slice(0,5)
+                    .concat([...CATEGORIES].sort((a,b)=>b.structure-a.structure)).slice(0,5);
+
+  const topOpportunity = [...opp].sort((a,b)=>b.opportunity-a.opportunity).slice(0,6);
+  const peakSeason = [...CATEGORIES].sort((a,b)=>SEASONS.indexOf(a.season)-SEASONS.indexOf(b.season)).slice(0,5);
+  const weakSeason = [...CATEGORIES].sort((a,b)=>SEASONS.indexOf(b.season)-SEASONS.indexOf(a.season)).slice(0,5);
+
+  const JOURNEY_ROWS = ['Weak','Recovery','Normal','Strong','Peak'];
+  const JOURNEY_COLS = [['Oversold',0,35],['Basing',35,60],['Trending',60,82],['Extended',82,101]];
+  function techPhase(structure){ return JOURNEY_COLS.find(c=>structure>=c[1]&&structure<c[2])[0]; }
+  const journeyGrid = JOURNEY_ROWS.map(row=>
+    JOURNEY_COLS.map(([col])=>opp.filter(c=>c.season===row && techPhase(c.structure)===col))
+  );
+
+  // deterministic "this week" changes — replace with real diff of last two pipeline runs
+  const weekly = [...CATEGORIES].sort((a,b)=>seedRand('wk'+a.name)()-seedRand('wk'+b.name)()).slice(0,6).map(c=>{
+    const isFlip = seedRand('wkf'+c.name)()>0.5;
+    return {c, isFlip};
+  });
+
+  const rows = (list)=>list.map(c=>`
+    <tr onclick="openDrawer('${c.group}','${c.name.replace(/'/g,"\\'")}')">
+      <td style="font-weight:600;">${c.name}</td>
+      <td class="stars" title="Current season: ${c.season}">${stars(c.fundamental)}</td>
+      <td style="color:var(--text-dim)">${c.season}</td>
+      <td><span class="struct-pill ${c.structLabel[1]}">${c.structLabel[0]}</span></td>
+      <td class="stars" style="color:var(--fundamental)">${stars(c.contra)}</td>
+      <td class="arrow ${c.arrow[1]}">${c.arrow[0]}</td>
+      <td class="arrow ${c.accel[1]}">${c.accel[0].split(' ')[0]}</td>
+      <td><span class="exh-pill ${c.exhaustion[1]}">${c.exhaustion[0]}</span></td>
+      <td class="mono" style="font-weight:600;color:${c.opportunity===null?'var(--text-faint)':scoreColor(c.opportunity)}">${c.opportunity===null?'—':c.opportunity}</td>
+    </tr>`).join('');
+
+  document.getElementById('page-summary').innerHTML = `
+    <div class="pagehead"><h1>Summary</h1></div>
+
+    <div class="section-title" style="margin-top:0;"><h2>Opportunity Score — Top Picks</h2><span class="sub">Ranked on Market Structure alone · season shown for context, not part of the score</span></div>
+    <div class="grid cols-3">
+      ${topOpportunity.map(c=>`
+        <div class="card cat-card" onclick="openDrawer('${c.group}','${c.name.replace(/'/g,"\\'")}')">
+          <div class="toprow">
+            <div><div class="name">${c.name}</div><div class="src">${GROUP_META[c.group].label}</div></div>
+            <span class="opp-score-badge" style="color:${scoreColor(c.opportunity)}">${c.opportunity}</span>
+          </div>
+          <div class="metrics-row">
+            <div class="m"><div class="lbl">Season</div><div class="v" style="font-size:12px;color:var(--fundamental)">${c.season}</div></div>
+            <div class="m"><div class="lbl">Structure</div><div class="v"><span class="struct-pill ${c.structLabel[1]}">${c.structLabel[0]}</span></div></div>
+            <div class="m"><div class="lbl">Trend</div><div class="v arrow ${c.arrow[1]}">${c.arrow[0]}</div></div>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="grid cols-2" style="margin-top:14px;">
+      <div>
+        <div class="section-title" style="margin-top:0;"><h2>Peak Season</h2><span class="sub">Strongest fundamental read</span></div>
+        <div class="card ranklist">
+          ${peakSeason.map((c,i)=>`<div class="rankrow"><span class="rk">${i+1}</span><span class="nm">${c.name}</span><span class="sc" style="color:var(--fundamental);font-size:12px;">${c.season}</span></div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="section-title" style="margin-top:0;"><h2>Weak Season</h2><span class="sub">Fundamentally out of favor</span></div>
+        <div class="card ranklist">
+          ${weakSeason.map((c,i)=>`<div class="rankrow"><span class="rk">${i+1}</span><span class="nm">${c.name}</span><span class="sc" style="color:var(--text-faint);font-size:12px;">${c.season}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Allocation Matrix</h2><span class="sub">Investment Journey — Business Cycle × Technical Phase, one cell per state, no Opportunity Score duplication</span></div>
+    <div class="card matrix-wrap">
+      <table class="journey">
+        <tr><th class="rowhead jcorner">Season ↓ / Technical →</th>${JOURNEY_COLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr>
+        ${JOURNEY_ROWS.map((row,ri)=>`
+          <tr>
+            <td class="rowhead">${row}</td>
+            ${JOURNEY_COLS.map((col,ci)=>{
+              const cats = journeyGrid[ri][ci];
+              const isPrime = (row==='Strong'||row==='Peak') && (col[0]==='Oversold'||col[0]==='Basing');
+              const isRisk = row==='Peak' && col[0]==='Extended';
+              return `<td class="${isPrime?'prime':isRisk?'risk':''}">
+                ${cats.length? cats.map(c=>`<span class="jchip" onclick="openDrawer('${c.group}','${c.name.replace(/'/g,"\\'")}')">${c.name}</span>`).join('') : '<span class="jempty">—</span>'}
+              </td>`;
+            }).join('')}
+          </tr>`).join('')}
+      </table>
+    </div>
+    <div class="footnote" style="margin-top:8px;">Green cells: Strong/Peak season with technicals still catching up — the classic contra entry, bought before the crowd. Red cell: Peak season already Extended technically — crowded, higher reversal risk. Opportunity Score deliberately omitted here; see the Top Picks leaderboard above for that ranking. Full 71-category breakdown with every dimension lives in <a href="#explorer">Data Explorer</a>.</div>
+
+    <div class="grid cols-3" style="margin-top:34px;">
+      <div>
+        <div class="section-title" style="margin-top:0;"><h2>Best Contra Opportunities</h2><span class="sub">Business-cycle read</span></div>
+        <div class="card ranklist">
+          ${topContra.map((c,i)=>`<div class="rankrow"><span class="rk">${i+1}</span><span class="nm">${c.name}</span><span class="sc stars" style="color:var(--fundamental)">${stars(c.contra)}</span></div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="section-title" style="margin-top:0;"><h2>Strongest Trends</h2><span class="sub">Direction confirmed</span></div>
+        <div class="card ranklist">
+          ${topTrend.map((c,i)=>`<div class="rankrow"><span class="rk">${i+1}</span><span class="nm">${c.name}</span><span class="arrow ${c.arrow[1]}" style="width:24px;text-align:right;">${c.arrow[0]}</span></div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="section-title" style="margin-top:0;"><h2>Highest Exhaustion Risk</h2><span class="sub">Combined fundamental + technical</span></div>
+        <div class="card ranklist">
+          ${topExhaustion.map((c,i)=>`<div class="rankrow"><span class="rk">${i+1}</span><span class="nm">${c.name}</span><span class="exh-pill ${c.exhaustion[1]}">${c.exhaustion[0]}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Weekly Changes</h2><span class="sub">New signals since last refresh</span></div>
+    <div class="card weekly-list">
+      ${weekly.map(({c,isFlip})=>`<div class="weekly-row"><span class="tag ${isFlip?'flip':'new'}">${isFlip?'REGIME FLIP':'NEW SIGNAL'}</span><span style="flex:1;font-weight:500;">${c.name}</span><span style="color:var(--text-dim)">${isFlip?`Cycle confirmed → ${c.cycle}`:`Structure moved to ${c.structLabel[0]}`}</span></div>`).join('')}
+    </div>
+
+    <div class="footnote">Opportunity Score is generated only from Market Structure (Trend, SMI, Relative Strength, Volatility, Pivot, Breadth). Fundamentals (Season, Contra) never enter that formula — the two tracks combine only visually, in the Allocation Matrix above.</div>
+  `;
+}
+function toggleGroup(id){
+  document.getElementById(`gh-${id}`).classList.toggle('collapsed');
+  document.getElementById(`gt-${id}`).classList.toggle('collapsed');
+}
+
+function renderGroupPage(gid){
+  const meta = GROUP_META[gid];
+  const cats = CATEGORIES.filter(c=>c.group===gid);
+  const scored = cats.filter(c=>c.opportunity!==null);
+
+  const bestOpp = [...scored].sort((a,b)=>b.opportunity-a.opportunity)[0];
+  const bestTrend = [...cats].sort((a,b)=>b.structure-a.structure)[0];
+  const bestMomentum = [...cats].filter(c=>c.accel[1]==='up').sort((a,b)=>b.structure-a.structure)[0] || bestTrend;
+  const bestContra = [...cats].sort((a,b)=>b.contra-a.contra)[0];
+  const worstExh = [...cats].sort((a,b)=>(b.exhaustion[1]==='high'?1:0)-(a.exhaustion[1]==='high'?1:0)||b.structure-a.structure)[0];
+  const mostImproved = [...cats].sort((a,b)=>seedRand('wk'+a.name)()-seedRand('wk'+b.name)())[0];
+
+  // Capital Rotation Map — one stage per category, horizontal flow, no scatter
+  function stage(c){
+    if(c.exhaustion[1]==='high') return 'Exhaustion';
+    if(c.season==='Peak' && c.structure>=55) return 'Mature';
+    if(c.structure>=60) return 'Leadership';
+    if(c.structure<40 && (c.season==='Weak'||c.season==='Recovery')) return 'Contra';
+    return 'Recovery';
+  }
+  const STAGE_META = {
+    Contra:{color:'#4E9BD8', desc:'Best Early Entry', legend:'Blue — fundamentals & tape both out of favor, earliest entry window'},
+    Recovery:{color:'#9B8CE0', desc:'Building Momentum', legend:'Violet — improving breadth, technical confirmation beginning'},
+    Leadership:{color:'#3FB98A', desc:'Strong Trend', legend:'Green — confirmed trend, strong participation'},
+    Mature:{color:'#D8A23D', desc:'Hold', legend:'Amber — late-cycle, momentum still positive but stretched'},
+    Exhaustion:{color:'#E0585F', desc:'Reduce', legend:'Red — momentum fading, higher reversal risk'},
+  };
+  const STAGES = ['Contra','Recovery','Leadership','Mature','Exhaustion'];
+  const staged = STAGES.map(s=>{
+    const scats = cats.filter(c=>stage(c)===s);
+    const withScore = scats.filter(c=>c.opportunity!==null);
+    const avgO = withScore.length ? Math.round(withScore.reduce((a,c)=>a+c.opportunity,0)/withScore.length) : null;
+    return {stage:s, cats:scats, avgO, stars: avgO!==null ? Math.min(5,Math.max(1,Math.round(avgO/20))) : 0};
+  });
+  const likelyUp = [...cats].filter(c=>c.accel[1]==='up' && c.structure<75).sort((a,b)=>b.structure-a.structure).slice(0,3);
+  const likelyDown = [...cats].filter(c=>c.accel[1]==='down' || c.exhaustion[1]==='high').sort((a,b)=>b.structure-a.structure).slice(0,3);
+
+  function actionFor(c){ return c.opportunity===null ? '—' : stanceFor(c).label; }
+  const ACTION_PRIORITY = {Enter:0, Invest:1, Accumulate:2, Hold:3, Exit:4};
+  const leaderboard = [...scored].sort((a,b)=> (ACTION_PRIORITY[actionFor(a)]-ACTION_PRIORITY[actionFor(b)]) || (b.contra-a.contra) || (b.opportunity-a.opportunity));
+
+  document.getElementById(`page-${gid}`).innerHTML = `
+    <div class="pagehead"><h1>${meta.label}</h1></div>
+
+    <div class="section-title" style="margin-top:0;"><h2>Group Highlights</h2></div>
+    <div class="card highlight-row">
+      <div class="hl-item"><div class="lbl">Best Opportunity</div><div class="nm" onclick="openDrawer('${gid}','${bestOpp.name.replace(/'/g,"\\'")}')">${bestOpp.name}</div></div>
+      <div class="hl-item"><div class="lbl">Best Trend</div><div class="nm" onclick="openDrawer('${gid}','${bestTrend.name.replace(/'/g,"\\'")}')">${bestTrend.name}</div></div>
+      <div class="hl-item"><div class="lbl">Best Momentum</div><div class="nm" onclick="openDrawer('${gid}','${bestMomentum.name.replace(/'/g,"\\'")}')">${bestMomentum.name}</div></div>
+      <div class="hl-item"><div class="lbl">Best Contra</div><div class="nm" onclick="openDrawer('${gid}','${bestContra.name.replace(/'/g,"\\'")}')">${bestContra.name}</div></div>
+      <div class="hl-item"><div class="lbl">Highest Exhaustion</div><div class="nm" onclick="openDrawer('${gid}','${worstExh.name.replace(/'/g,"\\'")}')">${worstExh.name}</div></div>
+      <div class="hl-item"><div class="lbl">Most Improved</div><div class="nm" onclick="openDrawer('${gid}','${mostImproved.name.replace(/'/g,"\\'")}')">${mostImproved.name}</div></div>
+    </div>
+
+    <div class="section-title"><h2>Seasonality Calendar</h2><span class="sub">Business (curated, slow-moving) alongside Mean/Median/Positive%/Std Dev (computed from price history) — two different methodologies, shown side by side, never blended</span></div>
+    <div class="card">
+      <div class="explorer-toolbar" style="margin-bottom:14px;">
+        <select id="seasonMonth-${gid}">${MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join('')}</select>
+        <select id="seasonLookback-${gid}">${LOOKBACKS.map(l=>`<option value="${l}">${l==='Max'?'Max History':l+(l===1?' Year':' Years')}</option>`).join('')}</select>
+        <span style="font-size:11px;color:var(--text-faint);align-self:center;">Stats auto-cap to whatever history a category actually has · click a column to sort</span>
+      </div>
+      <div style="overflow-x:auto;">
+      <table class="explorer">
+        <thead><tr id="seasonHeadRow-${gid}">
+          <th data-k="name">Category</th><th data-k="business">Business</th><th data-k="rationale" title="Curated driver behind this month's Business state. For categories with no curated read, or a curated read that's flat/non-seasonal all year (ESG, Innovation, Logistics), this shows where the month ranks by mean return instead.">Rationale</th><th data-k="mean">Mean Return</th><th data-k="median">Median Return</th><th data-k="positive">Positive %</th><th data-k="stddev">Std Dev</th><th data-k="annual" title="CAGR over the full lookback period — same regardless of month selected">Annual Return<br><span style="font-size:9px;font-weight:400;text-transform:none;color:var(--text-faint);">CAGR, period-only</span></th>
+        </tr></thead>
+        <tbody id="seasonBody-${gid}"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Capital Rotation Map</h2><span class="sub">If deploying fresh capital today, where should it go?</span></div>
+    <div class="card">
+      <div class="rotation-flow"><span>← Early Entry</span><span>Take Profits →</span></div>
+      <div class="rotation-map">
+        ${staged.map(s=>`
+          <div class="rcol" style="--stage-color:${STAGE_META[s.stage].color};--stage-bg:${STAGE_META[s.stage].color}14;">
+            <div class="rc-label" style="color:${STAGE_META[s.stage].color}">${s.stage}</div>
+            <div class="rc-desc">${STAGE_META[s.stage].desc}</div>
+            <div class="rc-meta"><span>${s.cats.length} categories</span><span>Avg ${s.avgO??'—'}</span></div>
+            ${s.cats.length? s.cats.map(c=>`<div class="rchip" onclick="openDrawer('${gid}','${c.name.replace(/'/g,"\\'")}')"><span>${c.name}</span><span class="sc arrow ${c.arrow[1]}" style="color:${c.opportunity===null?'var(--text-faint)':scoreColor(c.opportunity)}">${c.opportunity??'—'} ${c.arrow[0]}</span></div>`).join('') : '<span class="jempty">—</span>'}
+          </div>`).join('')}
+      </div>
+      <div class="rotation-legend">
+        ${STAGES.map(s=>`<div class="lg"><span class="dot" style="background:${STAGE_META[s].color};"></span>${STAGE_META[s].legend}</div>`).join('')}
+      </div>
+      <div class="rotation-foot">
+        <div class="rf-col"><b>↑ Likely Moving Up</b>${likelyUp.map(c=>`<div class="jchip" onclick="openDrawer('${gid}','${c.name.replace(/'/g,"\\'")}')" style="color:var(--up);">${c.name}</div>`).join('')||'<span class="jempty">—</span>'}</div>
+        <div class="rf-col"><b>↓ Likely Moving Down</b>${likelyDown.map(c=>`<div class="jchip" onclick="openDrawer('${gid}','${c.name.replace(/'/g,"\\'")}')" style="color:var(--down);">${c.name}</div>`).join('')||'<span class="jempty">—</span>'}</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Category Leaderboard</h2><span class="sub">Contra-first — early entries surface before crowded trades</span></div>
+    <table class="explorer" style="margin-bottom:26px;">
+      <thead><tr><th>Category</th><th>Phase</th><th>Contra</th><th>Opportunity</th><th>Action</th></tr></thead>
+      <tbody>
+        ${leaderboard.map(c=>`<tr onclick="openDrawer('${gid}','${c.name.replace(/'/g,"\\'")}')">
+          <td style="font-weight:600;">${c.name}</td>
+          <td style="color:var(--text-dim)">${c.season}</td>
+          <td class="stars" style="color:var(--fundamental)">${stars(c.contra)}</td>
+          <td class="mono" style="color:${scoreColor(c.opportunity)}">${c.opportunity}</td>
+          <td>${actionFor(c)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+
+    <div class="section-title"><h2>Categories</h2><span class="sub">${cats.length} tracked · click to open full research report</span></div>
+    <div class="grid cols-4">
+      ${cats.map(c=>`
+        <div class="card mini-card" onclick="openDrawer('${gid}','${c.name.replace(/'/g,"\\'")}')">
+          <div class="nm">${c.name}</div>
+          <div class="ph">${c.season}</div>
+          <div class="bot"><span class="stars">${stars(c.fundamental)}</span><span class="mono" style="font-weight:600;color:${c.opportunity===null?'var(--text-faint)':scoreColor(c.opportunity)}">${c.opportunity===null?'—':c.opportunity}</span></div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  // Seasonality Calendar wiring — mock stats now, swap seasonStats() for a real query later
+  const monthSel = document.getElementById(`seasonMonth-${gid}`);
+  const lookbackSel = document.getElementById(`seasonLookback-${gid}`);
+  const seasonBody = document.getElementById(`seasonBody-${gid}`);
+  let seasonSort = {key:'name', dir:1};
+  document.getElementById(`seasonHeadRow-${gid}`).addEventListener('click', e=>{
+    const th = e.target.closest('th'); if(!th) return;
+    const k = th.dataset.k;
+    seasonSort.dir = (seasonSort.key===k) ? -seasonSort.dir : -1;
+    seasonSort.key = k;
+    drawSeason();
+  });
+  function drawSeason(){
+    const monthIdx = Number(monthSel.value);
+    const month = MONTHS[monthIdx];
+    const lookback = lookbackSel.value;
+    let rows = cats.map(c=>{
+      const s = seasonStats(c.group, c.name, month, lookback, c.history);
+      const ann = annualReturn(c.group, c.name, lookback, c.history);
+      const biz = BUSINESS_CALENDAR[c.name];
+      const bizState = biz ? biz.states[monthIdx] : computedSeasonState(c.group, c.name, lookback, c.history, monthIdx);
+      // Rationale: curated driver text when the curated calendar actually says something month-specific;
+      // otherwise (no curated entry, or a curated entry that's flat/non-seasonal all year) fall back to
+      // the quantitative rank so the column never states a narrative the data doesn't support.
+      const flat = isFlatCurated(biz);
+      const rank = monthReturnRank(c.group, c.name, lookback, c.history, monthIdx);
+      let rationale, rationaleIcon, rationaleTitle;
+      if(biz && !flat){
+        rationale = biz.why[monthIdx];
+        rationaleIcon = CONF_ICON[biz.confidence];
+        rationaleTitle = `Curated — ${biz.confidence} confidence`;
+      } else if(biz && flat){
+        rationale = `${biz.why[monthIdx]} · ${rank}`;
+        rationaleIcon = '📊';
+        rationaleTitle = `Curated read is flat/non-seasonal all year — ranked by mean return instead`;
+      } else {
+        rationale = rank;
+        rationaleIcon = '📊';
+        rationaleTitle = `No curated industry read — this month's return ranked against this category's other 11 months`;
+      }
+      return {c, s, ann, biz, bizState, rationale, rationaleIcon, rationaleTitle};
+    });
+    rows.sort((a,b)=>{
+      const k = seasonSort.key;
+      const va = k==='name' ? a.c.name : k==='business' ? BUSINESS_RANK[a.bizState] : k==='rationale' ? a.rationale : k==='positive' ? a.s.positivePct : k==='stddev' ? a.s.stdDev : k==='annual' ? a.ann : a.s[k];
+      const vb = k==='name' ? b.c.name : k==='business' ? BUSINESS_RANK[b.bizState] : k==='rationale' ? b.rationale : k==='positive' ? b.s.positivePct : k==='stddev' ? b.s.stdDev : k==='annual' ? b.ann : b.s[k];
+      if(typeof va==='string') return seasonSort.dir * va.localeCompare(vb);
+      return seasonSort.dir * (vb - va);
+    });
+    seasonBody.innerHTML = rows.map(({c,s,ann,biz,bizState,rationale,rationaleIcon,rationaleTitle})=>`
+      <tr onclick="openDrawer('${gid}','${c.name.replace(/'/g,"\\'")}')">
+        <td style="font-weight:600;">${c.name}</td>
+        <td><span style="color:${BUSINESS_COLOR[bizState]};font-weight:600;">${bizState}</span></td>
+        <td style="color:var(--text-dim);font-size:12px;max-width:260px;"><span style="font-size:10px;" title="${rationaleTitle}">${rationaleIcon}</span> ${rationale}</td>
+        <td class="mono" style="color:${s.mean>=0?'var(--up)':'var(--down)'}">${s.mean>0?'+':''}${s.mean}%</td>
+        <td class="mono" style="color:var(--text-dim)">${s.median>0?'+':''}${s.median}%</td>
+        <td class="mono">${s.positivePct}%</td>
+        <td class="mono" style="color:var(--text-dim)">${s.n<=1?'—':s.stdDev+'%'}</td>
+        <td class="mono" style="color:${ann>=0?'var(--up)':'var(--down)'}">${ann>0?'+':''}${ann}%${s.capped?` <span style="color:var(--text-faint);font-size:10px;" title="Only ${s.effectiveYears}y of history available — using max available instead of requested lookback">(${s.effectiveYears}y avail)</span>`:''}</td>
+      </tr>`).join('');
+  }
+  monthSel.addEventListener('change', drawSeason);
+  lookbackSel.addEventListener('change', drawSeason);
+  monthSel.value = new Date().getMonth();
+  drawSeason();
+}
+
+function renderExplorer(){
+  const container = document.getElementById('page-explorer');
+  container.innerHTML = `
+    <div class="pagehead"><h1>Data Explorer</h1><p>Every calculated indicator for all ${CATEGORIES.length} categories, plus the resulting inference (Invest / Accumulate / Enter / Hold / Exit). Sort, filter, export.</p></div>
+    <div class="explorer-toolbar">
+      <select id="fltGroup"><option value="">All Groups</option>${GROUPS.filter(g=>!['summary','explorer'].includes(g.id)).map(g=>`<option value="${g.id}">${g.label}</option>`).join('')}</select>
+      <input class="filter" id="fltSearch" placeholder="Filter by category name…">
+      <select id="fltSeason"><option value="">All Seasons</option>${SEASONS.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      <select id="fltStruct"><option value="">All Structure</option>${STRUCT_LABELS.map(s=>`<option value="${s[1]}">${s[0]}</option>`).join('')}</select>
+      <select id="fltExh"><option value="">All Exhaustion</option>${EXH_LEVELS.map(e=>`<option value="${e[1]}">${e[0]}</option>`).join('')}</select>
+      <select id="fltConf"><option value="">All Confidence</option><option value="high">High (≥3yr)</option><option value="med">Below Floor</option></select>
+      <span style="font-size:11px;color:var(--text-faint);align-self:center;">Click any column header to sort ↕</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="explorer" style="min-width:2000px;">
+      <thead><tr id="explHeadRow">
+        <th data-k="name">Category</th><th data-k="group">Group</th><th data-k="season">Season</th><th data-k="fundamental">Fundamental</th><th data-k="structure">Technical Score</th><th data-k="trendPct">Trend</th><th data-k="rsi">RSI(14w)</th><th data-k="smi">SMI</th><th data-k="cycle">Cycle</th><th data-k="posPct">Position</th><th data-k="atrPct">ATR/Vol</th><th data-k="pivotDist">Pivot</th><th data-k="contra">Contra</th><th data-k="accel">Accel.</th><th data-k="exhaustion">Exhaustion</th><th data-k="opportunity">Opportunity</th><th data-k="inference">Inference</th><th data-k="history">History</th><th data-k="confidence">Confidence</th>
+      </tr></thead>
+      <tbody id="explorerBody"></tbody>
+    </table>
+  </div>
+  `;
+  const body = document.getElementById('explorerBody');
+  const SEASON_RANK={'Weak':0,'Recovery':1,'Normal':2,'Strong':3,'Peak':4};
+  const CYCLE_RANK=Object.fromEntries(CYCLES.map((c,i)=>[c,i]));
+  const EXH_RANK=Object.fromEntries(EXH_LEVELS.map((e,i)=>[e[1],i]));
+  const CONF_RANK=c=>c.history>=3?1:0;
+  let sortKey='opportunity', sortDir=-1;
+  document.getElementById('explHeadRow').addEventListener('click',e=>{
+    const th=e.target.closest('th'); if(!th) return;
+    const k=th.dataset.k;
+    sortDir = (sortKey===k) ? -sortDir : -1;
+    sortKey=k;
+    document.querySelectorAll('#explHeadRow th').forEach(h=>h.style.color='');
+    th.style.color='var(--structure)';
+    draw();
+  });
+  function sortVal(c,k){
+    switch(k){
+      case 'name': return c.name;
+      case 'group': return GROUP_META[c.group].label;
+      case 'season': return SEASON_RANK[c.season];
+      case 'cycle': return CYCLE_RANK[c.cycle];
+      case 'exhaustion': return EXH_RANK[c.exhaustion[1]];
+      case 'accel': return c.accel[1]==='up'?1:c.accel[1]==='side'?0:-1;
+      case 'inference': return stanceFor(c).label;
+      case 'confidence': return CONF_RANK(c);
+      case 'opportunity': return c.opportunity??-1;
+      default: return c[k];
+    }
+  }
+  function draw(){
+    let rows=[...CATEGORIES];
+    const g=document.getElementById('fltGroup').value;
+    const s=document.getElementById('fltSearch').value.toLowerCase();
+    const season=document.getElementById('fltSeason').value;
+    const struct=document.getElementById('fltStruct').value;
+    const exh=document.getElementById('fltExh').value;
+    const conf=document.getElementById('fltConf').value;
+    if(g) rows=rows.filter(r=>r.group===g);
+    if(s) rows=rows.filter(r=>r.name.toLowerCase().includes(s));
+    if(season) rows=rows.filter(r=>r.season===season);
+    if(struct) rows=rows.filter(r=>r.structLabel[1]===struct);
+    if(exh) rows=rows.filter(r=>r.exhaustion[1]===exh);
+    if(conf==='high') rows=rows.filter(r=>r.history>=3);
+    if(conf==='med') rows=rows.filter(r=>r.history<3);
+    rows.sort((a,b)=>{
+      const va=sortVal(a,sortKey), vb=sortVal(b,sortKey);
+      if(typeof va==='string') return sortDir * va.localeCompare(vb);
+      return sortDir * ((vb??-1)-(va??-1));
+    });
+    body.innerHTML = rows.map(c=>{ const st=stanceFor(c); const vi=(v,i)=>`<td class="mono">${v}<br><span style="color:var(--text-faint);font-size:10px;font-family:'Inter',sans-serif;">${i}</span></td>`; return `
+      <tr onclick="openDrawer('${c.group}','${c.name.replace(/'/g,"\\'")}')">
+        <td style="font-weight:600;">${c.name}</td>
+        <td style="color:var(--text-dim)">${GROUP_META[c.group].label}</td>
+        <td style="color:var(--text-dim)">${c.season}</td>
+        <td class="stars">${stars(c.fundamental)}</td>
+        <td class="mono" style="font-weight:600;color:${scoreColor(c.structure)}">${c.structure}</td>
+        ${vi((c.trendPct>0?'+':'')+c.trendPct+'%', c.trend)}
+        ${vi(c.rsi, c.rsiInterp)}
+        ${vi(c.smi, c.smiInterp)}
+        <td style="color:var(--text-dim)">${c.cycle}</td>
+        ${vi(c.posPct+'th', c.posInterp)}
+        ${vi(c.atrPct+'%', c.vol)}
+        ${vi((c.pivotDist>0?'+':'')+c.pivotDist+'%', c.pivotInterp)}
+        <td class="stars" style="color:var(--fundamental)">${stars(c.contra)}</td>
+        <td class="arrow ${c.accel[1]}">${c.accel[0].split(' ')[0]}</td>
+        <td><span class="exh-pill ${c.exhaustion[1]}">${c.exhaustion[0]}</span></td>
+        <td class="mono" style="color:${c.opportunity===null?'var(--text-faint)':scoreColor(c.opportunity)}">${c.opportunity===null?'—':c.opportunity}</td>
+        <td style="font-weight:600;color:${st.color}">${st.label}</td>
+        <td class="mono">${c.history}y</td>
+        <td><span class="badge-conf ${c.history>=3?'high':'med'}">${c.history>=3?'High':'Below Floor'}</span></td>
+      </tr>`;}).join('');
+  }
+  ['fltGroup','fltSearch','fltSeason','fltStruct','fltExh','fltConf'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+  draw();
+}
+
+/* ---------- DRAWER (category detail — mirrors etf.html spec) ---------- */
+function openDrawer(group,name){
+  const c = CATEGORIES.find(x=>x.group===group && x.name===name);
+  if(!c) return;
+  const factors = c.flag==='context'
+    ? [['Position (percentile in 5Y range)', c.posPct],['Cycle (fear/complacency)', c.cycle]]
+    : [['Trend', `${c.trendPct>0?'+':''}${c.trendPct}% · ${c.trend}`],['Cycle', c.cycle],['Position', `${c.posPct}th pct · ${c.posInterp}`],['RSI (14w)', `${c.rsi} · ${c.rsiInterp}`],['SMI', `${c.smi} · ${c.smiInterp}`],['ATR / Volatility', `${c.atrPct}% · ${c.vol}`],['Pivot', `${c.pivotDist>0?'+':''}${c.pivotDist}% · ${c.pivotInterp}`]];
+  const stance = stanceFor(c);
+
+  document.getElementById('drawer').innerHTML = `
+    <div class="drawer-close" onclick="closeDrawer()">✕</div>
+    <div style="margin-bottom:6px;"><span class="pill" style="background:${stance.color}22;color:${stance.color};border-color:${stance.color}44;">${stance.label}</span></div>
+    <h2 style="font-size:22px;margin:5px 0 2px;letter-spacing:0.01em;">${c.name}</h2>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);margin-bottom:22px;">${c.sourceType} · ${c.source} · ${c.history}y history</div>
+
+    <div class="drawer-section-label" style="color:var(--fundamental);">Fundamental Intelligence</div>
+    <div class="stars" style="font-size:20px;letter-spacing:3px;">${stars(c.fundamental)}</div>
+
+    <div style="height:1px;background:var(--border-subtle);margin:20px 0;"></div>
+
+    <div class="drawer-section-label" style="color:var(--structure);">Weekly Market Structure</div>
+    ${factors.map(f=>`<div class="factor-row"><span class="fname">${f[0]}</span><span class="fval">${f[1]}</span></div>`).join('')}
+
+    ${c.opportunity!==null ? `
+    <div style="height:1px;background:var(--border-subtle);margin:20px 0;"></div>
+    <div class="drawer-section-label" style="color:var(--text-faint);">Opportunity Score</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;color:${scoreColor(c.opportunity)};letter-spacing:-0.03em;line-height:1;">${c.opportunity}</div>
+    <div class="decision-tag" style="background:${stance.color}18;color:${stance.color};margin-top:8px;">${stance.label}</div>
+    <ul class="explain-list" style="margin-top:14px;">
+      <li>Trend ${c.trend.toLowerCase()} on weekly 18w/40w structure</li>
+      <li>Cycle confirmed ${c.cycle} (3-week anti-whipsaw lag applied)</li>
+      <li>Position at ${c.posPct}th percentile of 5Y range</li>
+      <li>Volatility regime: ${c.vol.toLowerCase()}</li>
+      <li>Score reflects Market Structure only — Fundamentals shown separately above</li>
+    </ul>
+    ` : `<div style="font-size:12.5px;color:var(--text-dim);margin-top:20px;padding:14px;background:var(--panel-2);border-radius:var(--radius-sm);border:1px solid var(--border);">Opportunity Score suppressed for context instruments — this card exists to inform reading of other categories, not as a standalone allocation decision.</div>`}
+
+    <div class="footnote">Data confidence: ${c.history>=3?'High':'Below 3yr floor — flagged in Emerging Opportunities'}.</div>
+  `;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+/* ---------- ROUTER ---------- */
+function navigate(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.navlist a').forEach(a=>a.classList.remove('active'));
+  const page = document.getElementById(`page-${id}`);
+  if(page) page.classList.add('active');
+  const link = document.querySelector(`[data-nav="${id}"]`);
+  if(link) link.classList.add('active');
+  const label = GROUPS.find(g=>g.id===id)?.label || 'Summary';
+  document.getElementById('crumb').innerHTML = `IndiaPulse / <b>${label}</b> <span id="refreshLabel" style="color:var(--text-faint);font-size:11px;margin-left:10px;">${refreshLabel()}</span>`;
+  if(id==='summary' && !page.dataset.rendered){ renderSummary(); page.dataset.rendered='1'; }
+  if(GROUP_META[id] && !page.dataset.rendered){ renderGroupPage(id); page.dataset.rendered='1'; }
+  if(id==='explorer' && !page.dataset.rendered){ renderExplorer(); page.dataset.rendered='1'; }
+}
+
+async function boot(){
+  try{
+    const [computed, seasonality, annual] = await Promise.all([
+      fetch('/data/computed.json').then(r=>r.json()),
+      fetch('/data/seasonality.json').then(r=>r.json()),
+      fetch('/data/annual.json').then(r=>r.json()),
+    ]);
+    COMPUTED_DATA = computed; SEASONALITY_DATA = seasonality; ANNUAL_DATA = annual;
+  }catch(e){
+    // Fetch failed (e.g. local file:// preview, or a bad deploy) -- fall back to empty grids
+    // rather than a blank page. Every field already has an "Insufficient History" fallback
+    // path built into buildCategories()/seasonStats()/annualReturn(), so this degrades to
+    // an all-"Insufficient History" render instead of crashing.
+    console.error('IndiaPulse: failed to load computed data, rendering with empty grids', e);
+  }
+
+  buildCategories();
+
+  const pagesEl = document.getElementById('pages');
+  GROUPS.forEach(g=>{
+    pagesEl.insertAdjacentHTML('beforeend', `<div class="page" id="page-${g.id}"></div>`);
+  });
+  window.addEventListener('hashchange', ()=>navigate(location.hash.slice(1)||'summary'));
+  navigate(location.hash.slice(1)||'summary');
+
+  document.getElementById('globalSearch').addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ location.hash='explorer'; setTimeout(()=>{ const f=document.getElementById('fltSearch'); if(f){f.value=e.target.value; f.dispatchEvent(new Event('input'));} },50); }
+  });
+}
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+name: Refresh Daily
+
+# HONEST CAVEAT: the architecture doc describes this as "daily tactical
+# (ATR/latest close overlay only)" -- a partial refresh, lighter than the
+# weekly full run. pipeline.py doesn't currently support a tactical-only
+# mode (it always computes every factor for every category); that would
+# need a --tactical flag added to pipeline.py to skip the slower/weekly-only
+# computations (Cycle's state-persisted regime, the full seasonality grid).
+# Not implemented -- this workflow runs the SAME full pipeline as the
+# weekly job, just on a daily cadence, until that split is built. Flagged
+# rather than silently pretending the tactical/full distinction already
+# exists.
+
+on:
+  schedule:
+    - cron: '30 12 * * 1-5'   # ~18:00 IST, after NSE close, weekdays only
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Restore price cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache
+          key: price-cache-${{ github.run_id }}
+          restore-keys: price-cache-
+
+      - name: Restore Cycle state
+        uses: actions/cache@v4
+        with:
+          path: data/state
+          key: cycle-state-${{ github.run_id }}
+          restore-keys: cycle-state-
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Refresh price cache (incremental)
+        run: python backend/price_cache.py
+
+      - name: Run pipeline
+        run: python backend/pipeline.py
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,42 @@
+name: Validate Sources Quarterly
+
+# Runs data_hierarchy.py's own diff_report() -- the PR-review checklist
+# that already exists in the codebase (3yr-floor corrections, unverified
+# candidates in use, unresolved categories) -- on both a quarterly schedule
+# and any PR touching sources.py, so drift (e.g. a verified ETF's
+# history_years quietly aging past/under the 3yr floor) surfaces even if
+# nobody manually runs `python data_hierarchy.py` before merging.
+
+on:
+  schedule:
+    - cron: '0 6 1 */3 *'   # first of the month, every 3rd month
+  pull_request:
+    paths:
+      - 'backend/sources.py'
+  workflow_dispatch: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run diff_report
+        working-directory: backend
+        run: python data_hierarchy.py | tee /tmp/diff_report.txt
+
+      - name: Fail if unresolved categories exist
+        working-directory: backend
+        run: |
+          if grep -q "UNRESOLVED" /tmp/diff_report.txt; then
+            echo "::error::One or more categories are unresolved -- see report above"
+            exit 1
+          fi
+          echo "No unresolved categories."
