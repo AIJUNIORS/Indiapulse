@@ -95,7 +95,13 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
                 )
 
             df = df.rename(columns=str.lower)[['open', 'high', 'low', 'close', 'volume']]
-            df.index = df.index.date
+            # Keep a real DatetimeIndex (normalized to midnight, no intraday
+            # component) rather than degrading to a plain object Index of
+            # datetime.date -- resample()/PeriodIndex() downstream (trend.py,
+            # position.py, volatility.py, seasonality.py, composite_builder.py's
+            # quarterly rebalance) all require an actual DatetimeIndex and raise
+            # "Only valid with DatetimeIndex..." on anything less.
+            df.index = pd.to_datetime(df.index).normalize()
             df.index.name = 'date'
 
             return FetchResult(
