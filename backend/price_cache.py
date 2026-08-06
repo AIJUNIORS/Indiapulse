@@ -61,6 +61,8 @@ def update_symbol(symbol: str, today: Optional[date] = None) -> dict:
 
     if existing is not None and len(existing) > 0:
         last_date = existing.index.max()
+        if hasattr(last_date, 'date'):  # pd.Timestamp -> plain date; comparing/adding
+            last_date = last_date.date()  # against `today` (a date) below needs matching types
         start = last_date + timedelta(days=1)
         if start > today:
             return {'symbol': symbol, 'status': 'up-to-date', 'rows_added': 0, 'total_rows': len(existing)}
