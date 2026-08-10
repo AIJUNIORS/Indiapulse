@@ -23,7 +23,7 @@ This module combines already-adjusted series -- it does not re-adjust.
 KNOWN LIMITATION -- cross-currency composites: this module assumes every
 constituent is priced in the same currency. That held for every composite
 in the registry except Vietnam (VNM is a USD-denominated US-listed ETF;
-EIB.HM/SSI.HM are VND-denominated Hanoi-listed stocks) -- Vietnam now
+EIB.VN/SSI.VN are VND-denominated Hanoi-listed stocks) -- Vietnam now
 routes through build_vietnam_composite() below instead, which converts the
 VND constituents to USD (VNM's own currency) before combining, via the
 same VNDUSD=X bridge-pair convention fx.py already uses for Global Markets
@@ -50,7 +50,7 @@ import fx
 from data_hierarchy import ResolvedSource
 
 CROSS_CURRENCY_COMPOSITES = {'Vietnam'}  # see module docstring -- Vietnam now has a conversion path (build_vietnam_composite); a NEW name added here still blocks build_composite() until it gets one too
-VIETNAM_VND_CONSTITUENTS = {'EIB.HM', 'SSI.HM'}  # VNM is already USD-denominated and needs no conversion
+VIETNAM_VND_CONSTITUENTS = {'EIB.VN', 'SSI.VN'}  # VNM is already USD-denominated and needs no conversion
 
 
 def build_composite(constituent_prices: dict[str, pd.Series], category_name: str = '') -> pd.DataFrame:
@@ -137,7 +137,7 @@ def _convert_vnd_constituent_to_usd(local_close: pd.Series) -> pd.Series:
 def build_vietnam_composite(constituent_prices: dict[str, pd.Series]) -> pd.DataFrame:
     """
     Vietnam's dedicated composite path -- converts the VND-denominated
-    constituents (EIB.HM, SSI.HM) to USD before combining with the
+    constituents (EIB.VN, SSI.VN) to USD before combining with the
     already-USD-denominated VNM, then defers to build_composite()'s normal
     equal-weight/quarterly-rebalance logic on the now-currency-unified
     series. This IS the fix the module docstring previously flagged as

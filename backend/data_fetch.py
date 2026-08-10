@@ -52,18 +52,48 @@ class FetchResult:
     error: Optional[str] = None
 
 
+
+# Bare (no-dot) composite constituents that are NOT NSE stocks and must not
+# get '.NS' appended -- e.g. VNM is the US-listed VanEck Vietnam ETF (NYSE
+# Arca), quoted as plain 'VNM' on Yahoo. Without this exemption,
+# to_yf_symbol() below silently mis-requests 'VNM.NS' (empty/wrong
+# instrument) since VNM has no dot and doesn't match the ^/=F/=X patterns.
+# Add to this set, don't touch the suffix logic below, whenever a composite
+# constituent is deliberately non-NSE.
+NON_NSE_BARE_SYMBOLS = {'VNM'}
+
+
 def to_yf_symbol(raw_symbol: str, default_exchange_suffix: str = '.NS') -> str:
     """
     sources.py stores composite constituents as bare NSE codes (e.g. 'SBIN',
     'M&M') since that's the natural label for display/weighting -- but
     yfinance needs the exchange suffix. Indices (^...), futures (...=F), and
     FX (...=X) are already in yfinance's own format and pass through as-is.
+    A small explicit exemption list (NON_NSE_BARE_SYMBOLS) covers bare
+    non-NSE tickers like VNM that would otherwise be misdetected as NSE
+    stocks just because they contain no dot.
     """
     if raw_symbol.startswith('^') or raw_symbol.endswith('=F') or raw_symbol.endswith('=X'):
+        return raw_symbol
+    if raw_symbol in NON_NSE_BARE_SYMBOLS:
         return raw_symbol
     if '.' in raw_symbol:  # already has an exchange suffix (e.g. NIFTYBEES.NS, ^SET.BK)
         return raw_symbol
     return f"{raw_symbol}{default_exchange_suffix}"
+
+
+
+# Some exchanges' historical DST rules (changed by decree year-to-year, e.g.
+# Brazil pre-2019) create locally-ambiguous timestamps that pandas/yfinance's
+# tz localization can't resolve on a full 'period=max' pull. This isn't a bad
+# ticker -- it's a fixed data point in that market's history -- so retrying
+# the identical request (the MAX_RETRIES loop below) can't help. Bounding the
+# initial backfill to skip past the ambiguous window is a workaround, not a
+# confirmed root-cause fix; it hasn't been reproduced against a live Yahoo
+# response in this environment (no network access here -- see module
+# docstring). Verify against the real Actions run and adjust the cutoff/logic
+# if the error recurs or shows up for other symbols.
+DST_AMBIGUOUS_FALLBACK_START = date(2000, 1, 1)
 
 
 def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] = None) -> FetchResult:
@@ -74,14 +104,16 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
     """
     yf_symbol = to_yf_symbol(symbol)
     last_error = None
+    effective_start = start
+    dst_fallback_tried = False
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             ticker = yf.Ticker(yf_symbol)
             df = ticker.history(
-                start=start.isoformat() if start else None,
+                start=effective_start.isoformat() if effective_start else None,
                 end=end.isoformat() if end else None,
-                period='max' if start is None else None,
+                period='max' if effective_start is None else None,
                 auto_adjust=True,   # split/dividend-adjusted close -- makes a single instrument's
                                      # series usable for return calculations without a separate
                                      # corporate-action step. Composites still need their own
@@ -111,6 +143,15 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
         except Exception as e:
             last_error = str(e)
             logger.warning(f"[{yf_symbol}] attempt {attempt}/{MAX_RETRIES} failed: {last_error}")
+            is_dst_ambiguous = 'cannot infer dst' in last_error.lower() or 'ambiguous' in last_error.lower()
+            if is_dst_ambiguous and not dst_fallback_tried and (effective_start is None or effective_start < DST_AMBIGUOUS_FALLBACK_START):
+                # Same request will fail identically on plain retry -- jump
+                # straight to the bounded start instead of burning the
+                # remaining MAX_RETRIES attempts on an unwinnable call.
+                effective_start = DST_AMBIGUOUS_FALLBACK_START
+                dst_fallback_tried = True
+                logger.warning(f"[{yf_symbol}] DST-ambiguous full-history pull; retrying from {DST_AMBIGUOUS_FALLBACK_START.isoformat()}")
+                continue
             if attempt < MAX_RETRIES:
                 time.sleep(BACKOFF_SECONDS * attempt)
         finally:

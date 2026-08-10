@@ -97,7 +97,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='broad-market', name='Large & Mid Cap', flag=None,
         candidates={
-            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=18.9, symbol='^NIFTY_LARGEMID250', return_basis='TRI', verified=True),
+            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=18.9, symbol='NIFTY_LARGEMID250.NS', return_basis='TRI', verified=True),
         },
     ),
 
@@ -125,7 +125,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='market-cap', name='Micro Cap', flag=None,
         candidates={
-            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='^NIFTY_MICROCAP250', return_basis='TRI', verified=True),
+            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY_MICROCAP250.NS', return_basis='TRI', verified=True),
         },
     ),
 
@@ -335,7 +335,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='strategy', name='Momentum', flag=None,
         candidates={
-            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='^NIFTY200_MOMENTUM30', return_basis='TRI', verified=True),
+            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY200_MOMENTUM30.NS', return_basis='TRI', verified=True),
         },
     ),
     CategorySource(
@@ -445,7 +445,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='global-markets', name='Vietnam', flag=None,
         candidates={
-            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=19.5, constituents=('VNM', 'EIB.HM', 'SSI.HM'), return_basis='price_only', verified=True),
+            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=19.5, constituents=('VNM', 'EIB.VN', 'SSI.VN'), return_basis='price_only', verified=True),
         },
     ),
     CategorySource(
@@ -482,7 +482,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
         group='emerging', name='EV Ecosystem', flag=None,
         candidates={
             'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=2.1, symbol='EVIETF.NS', return_basis='TRI', verified=True),
-            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=24.1, constituents=('TATAMOTORS', 'M&M', 'BAJAJ-AUTO', 'EXIDEIND', 'AMARARAJA'), return_basis='price_only', verified=False, note='Proposed fallback -- EV Ecosystem ETF is sub-3yr (2.1y); constituents not yet confirmed'),
+            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=24.1, constituents=('TMPV', 'M&M', 'BAJAJ-AUTO', 'EXIDEIND', 'ARE&M'), return_basis='price_only', verified=False, note='Proposed fallback -- EV Ecosystem ETF is sub-3yr (2.1y); constituents not yet confirmed. NSE renamed AMARAJABAT -> ARE&M, Oct 2023. TATAMOTORS swapped for TMPV (Tata Motors Passenger Vehicles Ltd, demerged entity housing Nexon EV/Punch EV/Tiago EV -- the direct EV-demand proxy vs. the parent commercial-vehicle-weighted entity) -- TMPV is newly listed post-demerger, likely well under the 3yr floor itself; verify actual listing date, exact Yahoo ticker, and history length via the local check script before trusting this in the composite.'),
         },
     ),
     CategorySource(

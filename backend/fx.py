@@ -16,7 +16,7 @@ noise and is a meaningfully different confidence level than a direct quote.
 
 Vietnam is intentionally excluded from CURRENCY_MAP -- its composite mixes
 a USD-denominated US-listed ETF (VNM) with VND-denominated Hanoi-listed
-stocks (EIB.HM, SSI.HM). That needs per-constituent conversion inside
+stocks (EIB.VN, SSI.VN). That needs per-constituent conversion inside
 composite_builder.py before a single blended-index FX rate even makes
 sense here -- see composite_builder.py's CROSS_CURRENCY_COMPOSITES note.
 """
