@@ -129,9 +129,24 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
                 actions=False,
             )
             if df.empty:
+                # yfinance doesn't always raise here -- for some quoteTypes
+                # (seen on NSE strategy-index quotes) it just logs a warning
+                # internally ("Period 'max' is invalid...") and hands back an
+                # empty frame with no exception at all. So this can't be
+                # caught in the except block below -- it needs its own
+                # bounded-range retry, same fallback, different trigger.
+                if not full_history_fallback_tried and (effective_start is None or effective_start < FULL_HISTORY_FALLBACK_START):
+                    effective_start = FULL_HISTORY_FALLBACK_START
+                    full_history_fallback_tried = True
+                    logger.warning(f"[{yf_symbol}] empty response on full-history pull (no exception raised -- "
+                                    f"likely a period='max' incompatibility for this quoteType); "
+                                    f"retrying from {FULL_HISTORY_FALLBACK_START.isoformat()}")
+                    continue
                 return FetchResult(
                     symbol=symbol, ok=False, bars=None, rows=0, first_date=None, last_date=None,
-                    error=f"empty response for {yf_symbol} -- delisted, wrong ticker, or no data in range",
+                    error=f"empty response for {yf_symbol} -- delisted, wrong ticker, or no data in range "
+                          f"(bounded-range retry also empty)" if full_history_fallback_tried else
+                          f"empty response for {yf_symbol} -- delisted, wrong ticker, or no data in range",
                 )
 
             df = df.rename(columns=str.lower)[['open', 'high', 'low', 'close', 'volume']]

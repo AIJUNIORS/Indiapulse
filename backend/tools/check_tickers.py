@@ -112,7 +112,24 @@ def check_symbol(symbol: str) -> None:
         return
 
     if df.empty:
-        print("  EMPTY -- delisted, wrong ticker, or no data in range.")
+        # IMPORTANT: yfinance doesn't always raise for this failure mode.
+        # For some quoteTypes (confirmed on the NSE strategy-index symbols
+        # below), it logs "Period 'max' is invalid..." internally via its
+        # own logger and just returns an empty frame -- no exception at all.
+        # The except block above never sees this, so it needs its own
+        # bounded-range retry, same fallback as data_fetch.py's real fix.
+        print("  EMPTY on period='max' (no exception raised -- this is the silent-empty failure")
+        print("  mode, not the exception-based one). Retrying bounded from 2000-01-01...")
+        try:
+            df2 = ticker.history(start="2000-01-01", auto_adjust=True, actions=False)
+            if df2.empty:
+                print("  -> still empty after bounding start date -- likely a genuinely wrong ticker.")
+            else:
+                first, last = df2.index.min().date(), df2.index.max().date()
+                years = (last - first).days / 365.25
+                print(f"  -> bounded pull WORKED: {len(df2)} rows, {first} to {last} (~{years:.1f} years)")
+        except Exception as e2:
+            print(f"  -> bounded retry also failed: {e2}")
         return
 
     first, last = df.index.min().date(), df.index.max().date()
