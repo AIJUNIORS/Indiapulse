@@ -92,9 +92,12 @@ def check_symbol(symbol: str) -> None:
         df = ticker.history(period="max", auto_adjust=True, actions=False)
     except Exception as e:
         msg = str(e)
-        if "ambiguous" in msg.lower() or "cannot infer dst" in msg.lower():
-            print(f"  DST-AMBIGUOUS ERROR (the Brazil-style failure): {msg}")
-            print("  Retrying bounded from 2000-01-01 to see if that side-steps it...")
+        if ("ambiguous" in msg.lower() or "cannot infer dst" in msg.lower()
+                or "period 'max' is invalid" in msg.lower()):
+            print(f"  FULL-HISTORY-PULL ERROR (matches data_fetch.py's fallback trigger): {msg}")
+            print("  Retrying bounded from 2000-01-01 -- this is the SAME retry data_fetch.py")
+            print("  actually performs in production, so this result tells us whether that")
+            print("  fix genuinely works, not just whether period='max' happens to fail.")
             try:
                 df2 = ticker.history(start="2000-01-01", auto_adjust=True, actions=False)
                 if df2.empty:

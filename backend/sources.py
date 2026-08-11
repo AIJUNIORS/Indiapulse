@@ -97,7 +97,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='broad-market', name='Large & Mid Cap', flag=None,
         candidates={
-            'etf': InstrumentCandidate(kind='etf', source_type_label='Index Fund', history_years=0.0, symbol='0P0001NQZ5.BO', return_basis='unknown', verified=False, note='Mutual-fund NAV series (Yahoo internal 0P-prefixed ID, not exchange-traded) -- ASSIGNMENT UNCONFIRMED: ordered here as LargeMidcap 250 to match the order given, but not verified against the fund name. Confirm via check_tickers.py identify_fund() before trusting. history_years is a placeholder (0.0) so resolve_source() falls through to the benchmark below until real numbers are filled in. Likely short history per the source -- acceptable as a stopgap while the benchmark/bounded-range fetch is still being confirmed; replace with real numbers as they come in.'),
+            'etf': InstrumentCandidate(kind='etf', source_type_label='Index Fund', history_years=4.7, symbol='0P0001NQZ5.BO', return_basis='unknown', verified=True, note='Edelweiss NIFTY Large Midcap 250 Index Fund -- assignment CONFIRMED via check_tickers.py identify_fund() (longName matched). Mutual-fund NAV series, not exchange-traded. ~4.7yr history (2021-12-01 to present), clears the 3yr floor -- resolve_source() will prefer this over the benchmark below unless/until the benchmark\'s bounded-range fetch is confirmed working.'),
             'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=18.9, symbol='NIFTY_LARGEMID250.NS', return_basis='TRI', verified=True),
         },
     ),
@@ -126,7 +126,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='market-cap', name='Micro Cap', flag=None,
         candidates={
-            'etf': InstrumentCandidate(kind='etf', source_type_label='Index Fund', history_years=0.0, symbol='0P0001R64W.BO', return_basis='unknown', verified=False, note='Mutual-fund NAV series (Yahoo internal 0P-prefixed ID, not exchange-traded) -- ASSIGNMENT UNCONFIRMED: ordered here as Microcap 250 to match the order given, but not verified against the fund name. Confirm via check_tickers.py identify_fund() before trusting. history_years is a placeholder (0.0) so resolve_source() falls through to the benchmark below until real numbers are filled in. Likely short history per the source -- acceptable as a stopgap while the benchmark/bounded-range fetch is still being confirmed; replace with real numbers as they come in.'),
+            'etf': InstrumentCandidate(kind='etf', source_type_label='Index Fund', history_years=3.1, symbol='0P0001R64W.BO', return_basis='unknown', verified=False, note='ASSIGNMENT STILL UNCONFIRMED as of check_tickers.py run -- Yahoo returned no longName/shortName for this symbol (info blocked/empty), unlike its paired 0P0001NQZ5.BO which confirmed as the LargeMidcap fund. Assumed Microcap 250 based on being offered alongside that one, not verified by name. ~3.1yr history (2023-07-05 to present) clears the 3.0y floor by a thin margin (MIN_HISTORY_YEARS in data_hierarchy.py) -- will only grow from here, but confirm the actual fund name manually (open the Yahoo URL in a browser) before trusting this is really Microcap 250 and not something else entirely.'),
             'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY_MICROCAP250.NS', return_basis='TRI', verified=True),
         },
     ),
@@ -337,7 +337,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='strategy', name='Momentum', flag=None,
         candidates={
-            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=0.0, symbol='MOMOMENTUM.NS', return_basis='TRI', verified=False, note='Motilal Oswal Nifty200 Momentum 30 ETF -- exact benchmark tracker, added as a secondary path alongside the direct index. history_years is a placeholder (0.0) so resolve_source() falls through to the benchmark below until this is confirmed via check_tickers.py -- fill in the real number once verified, don\'t guess it.'),
+            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=1.4, symbol='MOMOMENTUM.NS', return_basis='TRI', verified=True, note='Motilal Oswal Nifty200 Momentum 30 ETF -- confirmed via check_tickers.py: 355 rows, 2025-03-03 to present, ~1.4y history. Correctly under the 3.0y floor -- resolve_source() will skip this and use the benchmark below until it ages past 3 years (roughly early 2028) or the benchmark itself is confirmed working via the bounded-range fallback.'),
             'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY200MOMENTM30.NS', return_basis='TRI', verified=True),
         },
     ),
