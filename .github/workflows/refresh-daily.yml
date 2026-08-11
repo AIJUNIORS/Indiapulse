@@ -58,6 +58,10 @@ jobs:
       - name: Run pipeline
         run: python backend/pipeline.py
 
+      - name: Copy frontend to dist
+        run: |
+          mkdir -p dist
+          cp frontend/indiapulse-mockup.html dist/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
