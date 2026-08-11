@@ -97,6 +97,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='broad-market', name='Large & Mid Cap', flag=None,
         candidates={
+            'etf': InstrumentCandidate(kind='etf', source_type_label='Index Fund', history_years=0.0, symbol='0P0001NQZ5.BO', return_basis='unknown', verified=False, note='Mutual-fund NAV series (Yahoo internal 0P-prefixed ID, not exchange-traded) -- ASSIGNMENT UNCONFIRMED: ordered here as LargeMidcap 250 to match the order given, but not verified against the fund name. Confirm via check_tickers.py identify_fund() before trusting. history_years is a placeholder (0.0) so resolve_source() falls through to the benchmark below until real numbers are filled in. Likely short history per the source -- acceptable as a stopgap while the benchmark/bounded-range fetch is still being confirmed; replace with real numbers as they come in.'),
             'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=18.9, symbol='NIFTY_LARGEMID250.NS', return_basis='TRI', verified=True),
         },
     ),
@@ -125,6 +126,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='market-cap', name='Micro Cap', flag=None,
         candidates={
+            'etf': InstrumentCandidate(kind='etf', source_type_label='Index Fund', history_years=0.0, symbol='0P0001R64W.BO', return_basis='unknown', verified=False, note='Mutual-fund NAV series (Yahoo internal 0P-prefixed ID, not exchange-traded) -- ASSIGNMENT UNCONFIRMED: ordered here as Microcap 250 to match the order given, but not verified against the fund name. Confirm via check_tickers.py identify_fund() before trusting. history_years is a placeholder (0.0) so resolve_source() falls through to the benchmark below until real numbers are filled in. Likely short history per the source -- acceptable as a stopgap while the benchmark/bounded-range fetch is still being confirmed; replace with real numbers as they come in.'),
             'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY_MICROCAP250.NS', return_basis='TRI', verified=True),
         },
     ),
@@ -335,7 +337,8 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='strategy', name='Momentum', flag=None,
         candidates={
-            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY200_MOMENTUM30.NS', return_basis='TRI', verified=True),
+            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=0.0, symbol='MOMOMENTUM.NS', return_basis='TRI', verified=False, note='Motilal Oswal Nifty200 Momentum 30 ETF -- exact benchmark tracker, added as a secondary path alongside the direct index. history_years is a placeholder (0.0) so resolve_source() falls through to the benchmark below until this is confirmed via check_tickers.py -- fill in the real number once verified, don\'t guess it.'),
+            'benchmark': InstrumentCandidate(kind='benchmark', source_type_label='Index', history_years=15.2, symbol='NIFTY200MOMENTM30.NS', return_basis='TRI', verified=True),
         },
     ),
     CategorySource(
@@ -482,7 +485,7 @@ CATEGORY_SOURCES: list[CategorySource] = [
         group='emerging', name='EV Ecosystem', flag=None,
         candidates={
             'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=2.1, symbol='EVIETF.NS', return_basis='TRI', verified=True),
-            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=24.1, constituents=('TMPV', 'M&M', 'BAJAJ-AUTO', 'EXIDEIND', 'ARE&M'), return_basis='price_only', verified=False, note='Proposed fallback -- EV Ecosystem ETF is sub-3yr (2.1y); constituents not yet confirmed. NSE renamed AMARAJABAT -> ARE&M, Oct 2023. TATAMOTORS swapped for TMPV (Tata Motors Passenger Vehicles Ltd, demerged entity housing Nexon EV/Punch EV/Tiago EV -- the direct EV-demand proxy vs. the parent commercial-vehicle-weighted entity) -- TMPV is newly listed post-demerger, likely well under the 3yr floor itself; verify actual listing date, exact Yahoo ticker, and history length via the local check script before trusting this in the composite.'),
+            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=24.1, constituents=('TMPV', 'M&M', 'BAJAJ-AUTO', 'EXIDEIND', 'ARE&M'), return_basis='price_only', verified=True, note='Proposed fallback -- EV Ecosystem ETF is sub-3yr (2.1y); constituents not yet confirmed. NSE renamed AMARAJABAT -> ARE&M, Oct 2023. TATAMOTORS swapped for TMPV (Tata Motors Passenger Vehicles Ltd, the entity housing Nexon EV/Punch EV/Tiago EV) -- verified via check_tickers.py against live Yahoo data: TMPV.NS carries the ORIGINAL listing\'s full history back to 1991 (the demerger renamed the surviving listing, it did not spin out a fresh IPO), while TATAMOTORS.NS itself now 404s on Yahoo -- so this is not just the better EV proxy, it was also the only working symbol for this exposure by the time of verification.'),
         },
     ),
     CategorySource(

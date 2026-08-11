@@ -1,6 +1,6 @@
 """
 business_calendar_data.py -- backend-importable port of the frontend's
-embedded BUSINESS_CALENDAR object (indiapulse-mockup_26_.html). Straight
+embedded BUSINESS_CALENDAR object (indiapulse-mockup.html). Straight
 structural copy, NOT regenerated -- this is curated, training-knowledge-
 only judgment (draft v0.2 per the frontend's own comment), the same
 content, unchanged. business_score.py imports this directly:

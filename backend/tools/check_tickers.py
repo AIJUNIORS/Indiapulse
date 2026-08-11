@@ -34,8 +34,9 @@ import yfinance as yf
 CHECKS = {
     "NIFTY strategy indices (were '^X', now 'X.NS')": [
         "NIFTY_LARGEMID250.NS",
-        "NIFTY_MICROCAP250.NS",   # this one has a confirmed Yahoo page
-        "NIFTY200_MOMENTUM30.NS",
+        "NIFTY_MICROCAP250.NS",
+        "NIFTY200MOMENTM30.NS",   # fixed: no underscore, 'MOMENTM' not 'MOMENTUM'
+        "MOMOMENTUM.NS",          # ETF proxy fallback -- need its actual history_years
     ],
     "Vietnam composite (was '.HM', now '.VN'; VNM bare, no suffix)": [
         "VNM",
@@ -55,7 +56,33 @@ CHECKS = {
     "Brazil DST-ambiguous full-history pull": [
         "^BVSP",
     ],
+    "Mutual-fund NAV fallbacks for LargeMidcap 250 / Microcap 250 -- ASSIGNMENT UNCONFIRMED, see identify_fund() output below": [
+        "0P0001NQZ5.BO",   # assumed LargeMidcap 250, per the order given -- NOT verified
+        "0P0001R64W.BO",   # assumed Microcap 250, per the order given -- NOT verified
+    ],
 }
+
+
+def identify_fund(symbol: str) -> None:
+    """
+    0P-prefixed symbols are Yahoo's internal mutual-fund identifiers -- the
+    symbol string itself carries no readable meaning, unlike 'TATAMOTORS.NS'.
+    This prints whatever name/category fields Yahoo has for it so you can
+    confirm which real-world fund it actually is before trusting the
+    LargeMidcap-vs-Microcap assignment made in sources.py.
+    """
+    print(f"\n--- identify: {symbol} ---")
+    try:
+        info = yf.Ticker(symbol).get_info()
+    except Exception as e:
+        print(f"  Could not fetch info: {e}")
+        return
+    for field in ("longName", "shortName", "category", "fundFamily", "legalType"):
+        if info.get(field):
+            print(f"  {field}: {info[field]}")
+    if not any(info.get(f) for f in ("longName", "shortName")):
+        print("  No name fields returned -- info dict may be empty/blocked; "
+              "check manually in a browser at the Yahoo URL for this symbol.")
 
 
 def check_symbol(symbol: str) -> None:
@@ -104,6 +131,10 @@ def main() -> None:
         for sym in symbols:
             check_symbol(sym)
 
+    print(f"\n{'=' * 70}\nFund identification (0P... symbols)\n{'=' * 70}")
+    for sym in ("0P0001NQZ5.BO", "0P0001R64W.BO"):
+        identify_fund(sym)
+
     print(f"\n{'=' * 70}")
     print("Run finished. Things to eyeball in the output above:")
     print("  1. Did all three NIFTY_*.NS symbols return real rows? If any is")
@@ -115,6 +146,11 @@ def main() -> None:
     print("     TATAMOTORS should stay until TMPV clears more history.")
     print("  3. Did ^BVSP hit the DST-ambiguous error, and did the bounded")
     print("     2000-01-01 retry actually fix it?")
+    print("  4. Do the identify_fund() names above actually confirm")
+    print("     0P0001NQZ5.BO = LargeMidcap 250 and 0P0001R64W.BO = Microcap 250?")
+    print("     If they're swapped or something else entirely, fix the")
+    print("     assignment in sources.py before trusting either -- that")
+    print("     assignment was a guess based on the order given, not verified.")
 
 
 if __name__ == "__main__":

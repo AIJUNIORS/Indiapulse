@@ -83,17 +83,25 @@ def to_yf_symbol(raw_symbol: str, default_exchange_suffix: str = '.NS') -> str:
 
 
 
-# Some exchanges' historical DST rules (changed by decree year-to-year, e.g.
-# Brazil pre-2019) create locally-ambiguous timestamps that pandas/yfinance's
-# tz localization can't resolve on a full 'period=max' pull. This isn't a bad
-# ticker -- it's a fixed data point in that market's history -- so retrying
-# the identical request (the MAX_RETRIES loop below) can't help. Bounding the
-# initial backfill to skip past the ambiguous window is a workaround, not a
-# confirmed root-cause fix; it hasn't been reproduced against a live Yahoo
-# response in this environment (no network access here -- see module
-# docstring). Verify against the real Actions run and adjust the cutoff/logic
-# if the error recurs or shows up for other symbols.
-DST_AMBIGUOUS_FALLBACK_START = date(2000, 1, 1)
+# Some symbols throw on a full 'period=max' pull even though the ticker and
+# its history are genuinely valid (confirmed by checking Yahoo's own web UI
+# for these exact symbols) -- yfinance's max-period metadata resolution is
+# what's actually broken, not the data. Two known error signatures so far:
+#   1. Ambiguous-DST timestamps on very long histories (e.g. ^BVSP pre-2000)
+#   2. "Period 'max' is invalid, must be one of: 1d, 5d" on certain NSE
+#      strategy-index quotes (e.g. NIFTY_LARGEMID250.NS, NIFTY_MICROCAP250.NS)
+#      -- Yahoo's web UI serves full history for these, but the max-range API
+#      call yfinance uses to resolve valid periods fails for this quoteType.
+# Retrying once with a bounded start date works around both. This is a
+# workaround, not a confirmed root cause for case 2 -- verify with
+# tools/find_tickers.py's bounded_history_check() if it recurs on new
+# symbols, and widen the signature list below if a new error message shows
+# up for the same underlying pattern.
+FULL_HISTORY_FALLBACK_START = date(2000, 1, 1)
+_FULL_HISTORY_ERROR_SIGNATURES = (
+    'cannot infer dst', 'ambiguous',              # case 1
+    "period 'max' is invalid",                     # case 2
+)
 
 
 def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] = None) -> FetchResult:
@@ -105,7 +113,7 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
     yf_symbol = to_yf_symbol(symbol)
     last_error = None
     effective_start = start
-    dst_fallback_tried = False
+    full_history_fallback_tried = False
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -143,14 +151,14 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
         except Exception as e:
             last_error = str(e)
             logger.warning(f"[{yf_symbol}] attempt {attempt}/{MAX_RETRIES} failed: {last_error}")
-            is_dst_ambiguous = 'cannot infer dst' in last_error.lower() or 'ambiguous' in last_error.lower()
-            if is_dst_ambiguous and not dst_fallback_tried and (effective_start is None or effective_start < DST_AMBIGUOUS_FALLBACK_START):
+            is_full_history_issue = any(sig in last_error.lower() for sig in _FULL_HISTORY_ERROR_SIGNATURES)
+            if is_full_history_issue and not full_history_fallback_tried and (effective_start is None or effective_start < FULL_HISTORY_FALLBACK_START):
                 # Same request will fail identically on plain retry -- jump
                 # straight to the bounded start instead of burning the
                 # remaining MAX_RETRIES attempts on an unwinnable call.
-                effective_start = DST_AMBIGUOUS_FALLBACK_START
-                dst_fallback_tried = True
-                logger.warning(f"[{yf_symbol}] DST-ambiguous full-history pull; retrying from {DST_AMBIGUOUS_FALLBACK_START.isoformat()}")
+                effective_start = FULL_HISTORY_FALLBACK_START
+                full_history_fallback_tried = True
+                logger.warning(f"[{yf_symbol}] full-history pull failed ({last_error}); retrying from {FULL_HISTORY_FALLBACK_START.isoformat()}")
                 continue
             if attempt < MAX_RETRIES:
                 time.sleep(BACKOFF_SECONDS * attempt)

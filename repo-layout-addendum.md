@@ -24,7 +24,7 @@ backend/
   test_price_cache.py, test_factors.py
   requirements.txt
 frontend/
-  indiapulse-mockup_26_.html
+  indiapulse-mockup.html
 data/state/
   cycle_state.json          # committed, cycle.py's 3-week confirmation lag
 .github/workflows/
