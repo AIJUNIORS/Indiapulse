@@ -67,7 +67,22 @@ def run(current_date: date = None) -> int:
 
     for r in resolved:
         if r.resolution == 'unresolved':
-            continue  # no series to compute on; quality_guard expects these keys absent, not null-filled, per its own check
+            # No series to compute on. quality_guard.py's own contract (see its
+            # check_completeness docstring) requires every resolved category to
+            # have a computed.json entry, null-filled if unresolved -- an absent
+            # key is indistinguishable from a crash/bug and blocks deploy. The
+            # frontend already treats absent-key and null-field identically
+            # (indiapulse-mockup.html: `COMPUTED_DATA[group]?.[name] ?? {}`),
+            # so null-filling here is purely to satisfy quality_guard, with no
+            # frontend behavior change.
+            _nested_set(computed, r.group, r.name, {
+                'structure': None, 'fundamental': None, 'contra': None,
+                'trend': None, 'cycle': None, 'vol': None, 'opportunity': None,
+                'rsi': None, 'smi': None, 'atrPct': None, 'trendPct': None,
+                'pivotDist': None, 'posPct': None, 'arrow': None,
+                'accel': None, 'exhaustion': None,
+            })
+            continue
         try:
             series = get_category_series(r)
             close = series['close']
