@@ -157,6 +157,8 @@ def fetch_symbol(symbol: str, start: Optional[date] = None, end: Optional[date] 
             # quarterly rebalance) all require an actual DatetimeIndex and raise
             # "Only valid with DatetimeIndex..." on anything less.
             df.index = pd.to_datetime(df.index).normalize()
+            if df.index.tz is not None:
+                df.index = df.index.tz_localize(None)
             df.index.name = 'date'
 
             return FetchResult(
