@@ -502,16 +502,15 @@ CATEGORY_SOURCES: list[CategorySource] = [
             # silently clear the 3yr floor. Correctly under the floor now --
             # resolve_source() will fall through to the composite below until this
             # ETF ages past 3y (~Nov 2028).
-            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=0.75, symbol='CHEMICAL.NS', return_basis='TRI', verified=True, note='Kotak Nifty Chemicals ETF, confirmed correct ticker -- launched 2025-11-12, genuinely under the 3yr floor, not broken.'),
+            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=0.03, symbol='CHEMICAL.NS', return_basis='TRI', verified=True, note='CORRECTED 2026-08-11 via live yfinance pull: only 0.03y history (8 rows, 2026-07-31 to present). Far shorter than the 2025-11-12 launch date would suggest (~0.75y expected) -- matches the same "Yahoo chart API only returns recent dates" pattern already documented for NIFTY_LARGEMID250.NS/NIFTY_MICROCAP250.NS elsewhere in this file, worth a manual spot-check on Yahoo\'s own site before assuming it\'s purely a floor issue rather than a partial data-availability bug. Either way, correctly under the 3yr floor -- falls through to the composite below.'),
             # Proposed fallback while the ETF ages -- top-5 Nifty Chemicals Index
             # constituents by weight (Pidilite 18.1%, Solar Industries 17.8%, SRF
             # 8.3%, Coromandel Intl 6.5%, Linde India 6.5%, per niftyindices.com's
-            # own factsheet), all long-listed names expected to clear the 3yr floor
-            # easily. Tickers NOT yet run through check_tickers.py -- same
-            # verified=False discipline as every other proposed composite in this
-            # file (see Cement/Railways above) -- confirm exact NSE symbols and
-            # actual row counts before trusting this in production.
-            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=20.0, constituents=('PIDILITIND', 'SOLARINDS', 'SRF', 'COROMANDEL', 'LINDEINDIA'), return_basis='price_only', verified=False, note='Proposed fallback -- Chemicals ETF (CHEMICAL.NS) is sub-3yr (0.75y, launched Nov 2025); constituents are Nifty Chemicals Index top-5 by weight, tickers/history not yet confirmed via check_tickers.py.'),
+            # own factsheet). CONFIRMED 2026-08-11 via live yfinance pull -- all 5
+            # tickers resolve with deep history (20.4-26.2y each); composite's
+            # effective history is capped by the shortest (SOLARINDS.NS, 20.36y),
+            # comfortably clears the 3yr floor.
+            'composite': InstrumentCandidate(kind='composite', source_type_label='Composite', history_years=20.36, constituents=('PIDILITIND', 'SOLARINDS', 'SRF', 'COROMANDEL', 'LINDEINDIA'), return_basis='price_only', verified=True, note='Confirmed via check_tickers.py-equivalent pull 2026-08-11 -- all 5 constituents real and long-listed (20.4-26.2y each). Composite history capped at SOLARINDS.NS, the shortest (20.36y).'),
         },
     ),
     CategorySource(
@@ -523,7 +522,16 @@ CATEGORY_SOURCES: list[CategorySource] = [
     CategorySource(
         group='emerging', name='Logistics', flag=None,
         candidates={
-            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=3.4, symbol='INFRA.NS', return_basis='TRI', verified=True),
+            # CORRECTED history_years -- was hardcoded to 3.4y/verified=True, but a
+            # live yfinance pull (2026-08-11) shows INFRA.NS only has 122 rows,
+            # 2026-02-16 to present -- 0.48y, not 3.4y. This was NEVER a fetch/cache
+            # bug (the earlier "diagnose the cache" plan was based on a wrong
+            # premise) -- the symbol resolves fine, the stale history_years number
+            # was just letting a 5-month-old instrument silently clear the 3yr
+            # floor. No composite fallback registered yet -- Logistics will
+            # correctly fall to 'unresolved' until this ages past 3y (~Feb 2029)
+            # or a composite candidate is added (same treatment as Chemicals above).
+            'etf': InstrumentCandidate(kind='etf', source_type_label='ETF', history_years=0.48, symbol='INFRA.NS', return_basis='TRI', verified=True, note='CORRECTED 2026-08-11 via live yfinance pull: only 0.48y history (122 rows, 2026-02-16 to present), not the previously-hardcoded 3.4y. Genuinely under the 3yr floor, not broken.'),
         },
     ),
 ]
@@ -534,4 +542,3 @@ def get(group: str, name: str) -> CategorySource:
         if c.group == group and c.name == name:
             return c
     raise KeyError(f"No source registered for {group}/{name} -- add it via PR before referencing it")
-
